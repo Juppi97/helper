@@ -6,8 +6,8 @@
    "mode": "setup:CHECK",
    "expect": "^(?:FAM|HH)-v2-SETUP-CHECK-F(\\d+)-M(.*)$",
    "t": {
-    "en": "Create Family and check the folders",
-    "es": "Crear Family y comprobar las carpetas"
+    "en": "Auto setup: calendar, folder and journal files",
+    "es": "Configuración automática: calendario, carpeta y archivos de diario"
    },
    "fix": {
     "F": {
@@ -44,13 +44,13 @@
    "mode": "note:test",
    "expect": "^(?:FAM|HH)-v2-NOTES-OK$",
    "t": {
-    "en": "Check your notes and calendar names",
-    "es": "Comprobar notas y calendario"
+    "en": "Check the journal files and calendar",
+    "es": "Comprobar archivos del diario y calendario"
    },
    "fix": {
     "x": {
-     "en": "Nothing came back. Check that the notes Family Shared and Family Letters exist and their first line is exactly that name. Allow Family to access Notes if iOS asks. Run the check again.",
-     "es": "No volvió nada. Comprueba que existen las notas Family Shared y Family Letters y que su primera línea es exactamente ese nombre. Permite que Family acceda a Notas si iOS lo pide. Ejecuta la comprobación de nuevo."
+     "en": "Nothing came back. Run Setup again so the files Letters.txt and Shared.txt exist, then run this check again.",
+     "es": "No volvió nada. Ejecuta de nuevo la configuración para que existan Letters.txt y Shared.txt y repite la comprobación de nuevo."
     }
    }
   },
