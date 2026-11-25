@@ -16,8 +16,8 @@ button,a.b{font:inherit;border:1px solid var(--bd);background:var(--card);color:
 </style></head><body>
 <h1 id="t">AI helper</h1><div class="m" id="sub"></div>
 <div class="row"><button id="lEN">English</button><button id="lES">Español</button></div>
-<div class="c" id="resC" hidden><h2 id="hRes"></h2><div id="res"></div><div class="row"><button id="cpRes" class="p" style="width:auto;flex:1"></button><a class="b" id="back" target="_blank" rel="noopener"></a><button id="useRes"></button><button id="clrRes"></button></div><div class="m" id="chk"></div></div>
-<div class="c"><h2 id="hIn"></h2><textarea id="txt" autocomplete="off" autocapitalize="off"></textarea><div class="m" id="inH"></div>
+<div class="c" id="resC" hidden><div id="big" style="font-size:20px;font-weight:700;margin-bottom:8px"></div><h2 id="hRes"></h2><div id="res"></div><div class="row"><button id="cpRes" class="p" style="width:auto;flex:1"></button><a class="b" id="back" target="_blank" rel="noopener"></a><button id="useRes"></button><button id="clrRes"></button></div><div class="m" id="chk"></div></div>
+<button class="p" id="pr" style="margin:12px 0 0"></button><div class="c"><h2 id="hIn"></h2><textarea id="txt" autocomplete="off" autocapitalize="off"></textarea><div class="m" id="inH"></div>
 <div class="row" id="tasks"></div>
 <div id="wantW" hidden><div class="m" id="wantL"></div><input id="want" autocomplete="off"></div></div>
 <a class="b p" id="go" href="#"></a><div class="m" id="goH" style="margin-top:6px"></div>
@@ -36,7 +36,7 @@ inH:{en:"Tap in the box and choose Scan Text (camera icon in the keyboard menu) 
 wantL:{en:"What I want to say (any language)",es:"Lo que quiero decir (en cualquier idioma)"},
 go:{en:"Run on this iPhone",es:"Ejecutar en este iPhone"},
 goH:{en:"Opens the Shortcuts app for a few seconds, then returns here with the answer. Runs on the phone: no server sees your text.",es:"Abre la app Atajos unos segundos y vuelve aquí con la respuesta. Se ejecuta en el teléfono: ningún servidor ve tu texto."},
-back:{en:"Back to app",es:"Volver a la app"},hRes:{en:"Answer",es:"Respuesta"},cpRes:{en:"Copy answer",es:"Copiar respuesta"},useRes:{en:"Use as text",es:"Usar como texto"},clrRes:{en:"Clear",es:"Borrar"},
+back:{en:"Back to app",es:"Volver a la app"},copiedBig:{en:"✓ Answer copied. Tap X (top left) to return to the app, then tap Paste answer.",es:"✓ Respuesta copiada. Pulsa X (arriba a la izquierda) para volver a la app y luego Pegar respuesta."},copyBig:{en:"Tap Copy answer, then X (top left) to return to the app, then tap Paste answer.",es:"Pulsa Copiar respuesta, luego X (arriba a la izquierda) para volver a la app y luego Pegar respuesta."},pr:{en:"Paste text from the app and run",es:"Pegar texto de la app y ejecutar"},pasteBlocked:{en:"Paste was not allowed. Press and hold in the text box and tap Paste.",es:"No se permitió pegar. Mantén pulsado en el cuadro y pulsa Pegar."},hRes:{en:"Answer",es:"Respuesta"},cpRes:{en:"Copy answer",es:"Copiar respuesta"},useRes:{en:"Use as text",es:"Usar como texto"},clrRes:{en:"Clear",es:"Borrar"},
 chk:{en:"AI can make mistakes. Check dates, amounts and names against the original.",es:"La IA puede equivocarse. Comprueba fechas, importes y nombres con el original."},
 hSet:{en:"Shortcut",es:"Atajo"},scL:{en:"Name of your shortcut (set up once, see below)",es:"Nombre de tu atajo (se crea una vez, ver abajo)"},
 test:{en:"Test the shortcut",es:"Probar el atajo"},cpP:{en:"Copy prompt (fallback)",es:"Copiar instrucción (alternativa)"},
@@ -53,7 +53,7 @@ function prompt(){const o=D.tasks.find(x=>x.id==task);const w=$("want").value.tr
 return o.prompt.replace("{{LANG}}",D.lang[L]).replace("{{WANT}}",w).replace("{{TEXT}}",$("txt").value.trim())}
 function link(p){return "shortcuts://x-callback-url/run-shortcut?name="+encodeURIComponent($("scn").value.trim()||SC)+"&input=text&text="+encodeURIComponent(p)}
 function render(){document.documentElement.lang=L;try{localStorage.setItem("ai_l",L)}catch(e){}
-$("t").textContent=t("t");$("sub").textContent=t("sub");$("hIn").textContent=t("hIn");$("inH").textContent=t("inH");$("wantL").textContent=t("wantL");
+$("t").textContent=t("t");$("sub").textContent=t("sub");$("hIn").textContent=t("hIn");$("pr").textContent=t("pr");$("inH").textContent=t("inH");$("wantL").textContent=t("wantL");
 $("go").textContent=t("go");$("goH").textContent=t("goH");$("hRes").textContent=t("hRes");$("cpRes").textContent=t("cpRes");$("back").textContent=t("back");$("useRes").textContent=t("useRes");$("clrRes").textContent=t("clrRes");$("chk").textContent=t("chk");
 $("hSet").textContent=t("hSet");$("scL").textContent=t("scL");$("test").textContent=t("test");$("cpP").textContent=t("cpP");$("hBuild").textContent=t("hBuild");$("priv").textContent=t("priv");
 $("lEN").className=L=="en"?"on":"";$("lES").className=L=="es"?"on":"";$("scn").value=SC;
@@ -72,7 +72,11 @@ $("build").innerHTML="";const ol=document.createElement("ol");(L=="en"?[
 const pre=document.createElement("pre");pre.textContent=bp;$("build").appendChild(pre);const b=document.createElement("button");b.textContent=t("cpRes");b.onclick=()=>cp(bp);$("build").appendChild(b);
 const p=document.createElement("pre");p.textContent="Actions:\n1 Get Text from Input (Shortcut Input)\n2 Use Model (On-Device) → Response\n3 Encode [Model Response] (URL)\n4 Text: "+u+"#r=[Encoded Text]\n5 Open URLs [Text]";$("build").appendChild(p)}
 async function cp(s){try{await navigator.clipboard.writeText(s);$("msg").textContent=t("copied")}catch(e){$("msg").textContent=t("cpFail")}}
-function show(r){$("back").href=APP+"#ai="+encodeURIComponent(r);$("res").textContent=r;$("resC").hidden=false;$("resC").scrollIntoView()}
+async function autoCopy(r){try{await navigator.clipboard.writeText(r);$("big").textContent=t("copiedBig");$("big").style.color="var(--ok)"}catch(e){$("big").textContent=t("copyBig");$("big").style.color="var(--fg)"}}
+async function pasteRun(){let v="";try{v=await navigator.clipboard.readText()}catch(e){$("msg").textContent=t("pasteBlocked");return}
+if(v.indexOf("HHAI1")===0){try{const j=JSON.parse(v.slice(5));if(D.tasks.some(o=>o.id==j.t))task=j.t;if(j.l=="es"||j.l=="en")L=j.l;if(j.n)SC=String(j.n).slice(0,40);$("txt").value=j.x||"";$("want").value=j.w||""}catch(e){$("txt").value=v}}else $("txt").value=v;render();if(!$("txt").value.trim()){$("msg").textContent=t("empty");return}location.href=link(prompt())}
+$("pr").onclick=pasteRun;
+function show(r){autoCopy(r);$("back").href=APP+"#ai="+encodeURIComponent(r);$("res").textContent=r;$("resC").hidden=false;$("resC").scrollIntoView()}
 function readHash(){const h=location.hash.slice(1);if(!h)return;
 if(!/^[rb]=/.test(h)){const q=new URLSearchParams(h);if(q.get("l")=="es"||q.get("l")=="en")L=q.get("l");const tk=q.get("t");if(tk&&D.tasks.some(o=>o.id==tk))task=tk;if(q.get("n")){SC=q.get("n").slice(0,40);try{localStorage.setItem("ai_sc",SC)}catch(e){}}
 if(q.get("x"))$("txt").value=q.get("x");if(q.get("w"))$("want").value=q.get("w");history.replaceState(null,"",location.pathname+location.search);render();
