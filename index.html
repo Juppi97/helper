@@ -8,10 +8,12 @@ const es=(navigator.language||"").startsWith("es");
 function sc(name,text){return"shortcuts://run-shortcut?name="+encodeURIComponent(name)+(text?"&input=text&text="+encodeURIComponent(text):"")}
 function back(){return ART}
 try{history.replaceState(null,"",location.pathname)}catch(e){}
+if(q.get("ping")){try{parent.postMessage({hh:"ping"},"*")}catch(e){}}
 let url=null;
 const m=H.match(/^(bill|letter|unpaid|text|r)=([\s\S]*)$/);
 if(m){/* fallback: a shortcut that returned here instead of the app: forward the answer */url=ART+"#ai="+(m[1]==="r"?"text":m[1])+"~"+m[2];$("m").textContent=es?"Volviendo…":"Returning…"}
 else if(q.get("s")){url=sc(q.get("s"),q.get("x")||(q.get("c")==="1"?"cal":"nocal"))}
+else if(q.get("ping")){$("m").textContent=""}
 else if(q.get("create")){url="shortcuts://create-shortcut"}
 else if(q.get("test")){url=sc(q.get("n")||"HH Text","Reply with only: Everything works")}
 else{$("m").textContent="";$("bk").hidden=false;$("bk").href=back();$("bk").textContent=es?"Volver a la app":"Back to app"}
