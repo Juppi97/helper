@@ -1,42 +1,80 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Companion test</title>
+<title>Papers Companion</title>
 <style>
-:root{--bg:#f6f5f2;--fg:#1d1d1f;--card:#fff;--mut:#6b6b70;--ok:#1a7f37;--no:#b42318;--acc:#2f5bd3}
-@media (prefers-color-scheme:dark){:root{--bg:#141416;--fg:#f2f2f4;--card:#1f1f23;--mut:#a0a0a8;--ok:#4cc26a;--no:#ff6b5e;--acc:#7c9cff}}
-body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.45 -apple-system,system-ui,sans-serif;padding:16px}
+:root{--bg:#f6f5f2;--fg:#1d1d1f;--card:#fff;--mut:#6b6b70;--ok:#1a7f37;--no:#b42318;--warn:#9a6700;--acc:#2f5bd3;--line:#e5e3de}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141416;--fg:#f2f2f4;--card:#1f1f23;--mut:#a0a0a8;--ok:#4cc26a;--no:#ff6b5e;--warn:#e3b341;--acc:#7c9cff;--line:#2e2e33}}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.45 -apple-system,system-ui,sans-serif;padding:16px;max-width:640px;margin:auto}
+h1{font-size:24px;margin:4px 0 2px}h2{font-size:17px;margin:0 0 8px}p{margin:4px 0}.m{color:var(--mut);font-size:15px}
 .c{background:var(--card);border-radius:14px;padding:14px 16px;margin:0 0 12px}
-h1{font-size:22px;margin:4px 0 12px}h2{font-size:17px;margin:0 0 6px}p{margin:4px 0;color:var(--mut)}
-button,a.b{display:block;width:100%;box-sizing:border-box;margin:8px 0 0;padding:13px;border:0;border-radius:12px;background:var(--acc);color:#fff;font:600 17px -apple-system,system-ui;text-align:center;text-decoration:none}
-.r{font-weight:600}.ok{color:var(--ok)}.no{color:var(--no)}code{font-size:20px;letter-spacing:1px}
+button,a.b{display:block;width:100%;box-sizing:border-box;margin:8px 0 0;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font:600 17px -apple-system,system-ui;text-align:center;text-decoration:none}
+button.s{background:transparent;color:var(--acc);border:1px solid var(--line)}
+.row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.row:first-child{border-top:0}
+.ok{color:var(--ok)}.no{color:var(--no)}.warn{color:var(--warn)}.big{font-size:22px;font-weight:700}
+.lang{float:right;font-size:15px;background:none;border:1px solid var(--line);color:var(--fg);width:auto;padding:6px 10px;margin:0}
+textarea{width:100%;box-sizing:border-box;min-height:120px;font:15px ui-monospace,monospace;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:8px}
 </style></head><body>
-<h1>Phone companion: test</h1>
-<p>This page stores nothing about you. It only checks what your iPhone allows. Results stay on this phone.</p>
-<div class="c"><h2>1. Shortcut round trip</h2>
-<p>First create a shortcut named <b>HH Ping</b> with one action: <b>Text</b> "pong". Then tap:</p>
-<a class="b" id="run">Run HH Ping and come back</a>
-<p class="r" id="r1">Not tested yet</p></div>
-<div class="c"><h2>2. Read the clipboard</h2>
-<p>Copy any word somewhere, then tap and allow Paste.</p>
-<button id="paste">Read clipboard</button><p class="r" id="r2">Not tested yet</p></div>
-<div class="c"><h2>3. Memory on this phone</h2>
-<p>Close this page and open it again: the number should go up.</p><p class="r" id="r3"></p></div>
-<div class="c"><h2>Your result code</h2><p>Send this code to Claude in the project chat.</p><code id="code"></code></div>
+<button class="lang" id="lang">ES</button>
+<h1 data-t="title">Papers on this phone</h1>
+<p class="m" data-t="sub">Bills and letters are read here and stay on this phone. Nothing is uploaded.</p>
+<div class="c" id="today"></div>
+<div class="c"><h2 data-t="scanH">A paper arrived</h2>
+<p class="m" data-t="scanP">Save the PDF or photo to Files > Home Hunt > Inbox, then tap.</p>
+<a class="b" id="scanInbox" data-t="scanB">Read the newest paper</a>
+<a class="b" id="scanUnpaid" data-t="unpaidB" style="background:transparent;color:var(--acc);border:1px solid var(--line)">Read everything in Unpaid</a></div>
+<div id="result"></div>
+<div class="c"><h2 data-t="dueH">Due list (this phone only)</h2><div id="due"></div></div>
+<div class="c"><h2 data-t="manH">No shortcut? Paste the text</h2><textarea id="paste"></textarea><button class="s" id="parseBtn" data-t="manB">Read pasted text</button></div>
+<div class="c"><h2 data-t="setH">Set up once</h2>
+<p class="m" data-t="setP">Install the HH shortcut (tap, then Add Shortcut):</p>
+<a class="b s" href="https://raw.githubusercontent.com/Juppi97/helper/main/shortcuts/HH.shortcut" style="background:transparent;color:var(--acc);border:1px solid var(--line)">HH shortcut</a>
+<a class="b s" href="https://claude.ai/artifact/7GeHGrqt1o3rGeVn6oEZ2G" target="_blank" style="background:transparent;color:var(--acc);border:1px solid var(--line)" data-t="app">Open the family app</a>
+<p class="m" id="ver"></p></div>
+<script src="scan.js"></script><script src="nocheck.js"></script>
 <script>
-const S={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-const self=location.origin+location.pathname;
-document.getElementById('run').href='shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent('HH Ping')+'&input=text&text=ping'
- +'&x-success='+encodeURIComponent(self+'?cb=ok')+'&x-cancel='+encodeURIComponent(self+'?cb=cancel')+'&x-error='+encodeURIComponent(self+'?cb=error');
-const q=new URLSearchParams(location.search);
-if(q.get('cb')){S.set('t1',q.get('cb')+(q.get('result')?':'+q.get('result').slice(0,12):''));history.replaceState(null,'',self)}
-const n=(+S.get('visits')||0)+1;S.set('visits',n);
-function show(){const t1=S.get('t1'),t2=S.get('t2');
- const r1=document.getElementById('r1');r1.textContent=t1?('Came back: '+t1):'Not tested yet';r1.className='r '+(t1&&t1.startsWith('ok')?'ok':t1?'no':'');
- const r2=document.getElementById('r2');r2.textContent=t2?('Clipboard: '+(t2==='ok'?'works':t2)):'Not tested yet';r2.className='r '+(t2==='ok'?'ok':t2?'no':'');
- const r3=document.getElementById('r3');r3.textContent='Visits remembered: '+n+(S.get('visits')?'':' (storage blocked)');r3.className='r '+(n>1?'ok':'');
- const a=t1?(t1.startsWith('ok')?(t1.includes('pong')?'R2':'R1'):'R0'):'R-',b=t2?(t2==='ok'?'C1':'C0'):'C-',c=n>1?'L1':'L-';
- const m=matchMedia('(display-mode: standalone)').matches?'H':'S';
- document.getElementById('code').textContent=[a,b,c,m].join(' ');}
-document.getElementById('paste').onclick=async()=>{try{const t=await navigator.clipboard.readText();S.set('t2',t?'ok':'empty')}catch(e){S.set('t2',e.name)}show()};
-show();
+const T={en:{title:'Papers on this phone',sub:'Bills and letters are read here and stay on this phone. Nothing is uploaded.',scanH:'A paper arrived',scanP:'Save the PDF or photo to Files > Home Hunt > Inbox, then tap.',scanB:'Read the newest paper',unpaidB:'Read everything in Unpaid',dueH:'Due list (this phone only)',manH:'No shortcut? Paste the text',manB:'Read pasted text',setH:'Set up once',setP:'Install the HH shortcut (tap, then Add Shortcut):',app:'Open the family app',
+ bill:'Bill',letter:'Letter',from:'From',amount:'Amount',due:'Due',paid:'Already paid',kidOk:'KID number checks out',kidBad:'KID number looks wrong: check before paying',accOk:'Account number checks out',accBad:'Account number looks wrong: check before paying',dl:'Deadlines',cal:'Add to calendar',save:'Add to due list',saved:'Added',claim:'Copy text for NAV',copied:'Copied',none:'Nothing due. Nice.',overdue:'overdue',days:'days',markPaid:'Paid',total:'Total due',back:'Came back from the shortcut',err:'The shortcut did not return text. Is the file in Inbox?',calDone:'Added to your calendar',noNew:'Nothing to read'},
+ es:{title:'Papeles en este móvil',sub:'Facturas y cartas se leen aquí y se quedan en este móvil. No se sube nada.',scanH:'Llegó un papel',scanP:'Guarda el PDF o la foto en Archivos > Home Hunt > Inbox y toca.',scanB:'Leer el papel más nuevo',unpaidB:'Leer todo lo de Unpaid',dueH:'Pendientes (solo este móvil)',manH:'¿Sin atajo? Pega el texto',manB:'Leer el texto pegado',setH:'Configurar una vez',setP:'Instala el atajo HH (toca y Añadir atajo):',app:'Abrir la app familiar',
+ bill:'Factura',letter:'Carta',from:'De',amount:'Importe',due:'Vence',paid:'Ya pagada',kidOk:'El número KID es correcto',kidBad:'El número KID parece incorrecto: revisar antes de pagar',accOk:'La cuenta es correcta',accBad:'La cuenta parece incorrecta: revisar antes de pagar',dl:'Plazos',cal:'Añadir al calendario',save:'Añadir a pendientes',saved:'Añadido',claim:'Copiar texto para NAV',copied:'Copiado',none:'Nada pendiente.',overdue:'vencida',days:'días',markPaid:'Pagada',total:'Total pendiente',back:'Volvió del atajo',err:'El atajo no devolvió texto. ¿Está el archivo en Inbox?',calDone:'Añadido al calendario',noNew:'Nada que leer'}};
+const S={get(k,d){try{const v=localStorage.getItem('hhc.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('hhc.'+k,JSON.stringify(v))}catch(e){}}};
+let lang=S.get('lang',(navigator.language||'en').startsWith('es')?'es':'en');const t=k=>T[lang][k]||k;
+const today=new Date().toISOString().slice(0,10),self=location.origin+location.pathname,$=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function cb(mode,tag){return 'shortcuts://x-callback-url/run-shortcut?name=HH&input=text&text='+encodeURIComponent('cb:'+mode)
+ +'&x-success='+encodeURIComponent(self+'?r='+tag)+'&x-cancel='+encodeURIComponent(self+'?r=cancel')+'&x-error='+encodeURIComponent(self+'?r=error')}
+function paint(){document.documentElement.lang=lang;$('lang').textContent=lang==='en'?'ES':'EN';document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+ $('scanInbox').href=cb('scan:inbox','scan');$('scanUnpaid').href=cb('scan:unpaid','scan');renderDue();renderToday()}
+// KID / account check on the raw text, never stored
+function checks(raw){const out=[];const kid=raw.match(/KID[^\d\n]{0,15}([\d ]{2,30}-?)/i);if(kid){const k=kid[1].replace(/\s/g,'');out.push(hhKid(k)?['ok',t('kidOk')]:['no',t('kidBad')])}
+ const acc=raw.match(/(?:konto(?:nummer|nr)?|account)[^\d\n]{0,15}(\d{4}[ .]?\d{2}[ .]?\d{5})/i);if(acc)out.push(hhAccount(acc[1])?['ok',t('accOk')]:['no',t('accBad')]);return out}
+function showDocs(raw){const r=HHS.parse(raw,{today,lang});if(!r.docs.length){$('result').innerHTML='<div class="c no">'+esc(t('noNew'))+'</div>';return}
+ const parts=String(raw).split(/^=+\s*HH-FILE\s*=+\s*$/m).map(s=>s.trim()).filter(s=>s.length>10);
+ $('result').innerHTML=r.docs.map((d,i)=>{const ck=checks(parts[i]||'');return '<div class="c"><h2>'+esc(t(d.type))+': '+esc(d.sender)+'</h2>'
+  +(d.amount!=null?'<div class="row"><span>'+t('amount')+'</span><span class="big">kr '+esc(HHS.fmtAmt(d.amount))+'</span></div>':'')
+  +(d.due?'<div class="row"><span>'+t('due')+'</span><span>'+esc(HHS.fmtNb(d.due))+'</span></div>':'')
+  +(d.paid?'<p class="ok">'+t('paid')+'</p>':'')+ck.map(c=>'<p class="'+c[0]+'">'+esc(c[1])+'</p>').join('')
+  +(d.deadlines.length?'<h2 style="margin-top:10px">'+t('dl')+'</h2>'+d.deadlines.map(x=>'<div class="row"><span>'+esc(HHS.fmtNb(x.iso))+'</span><span class="m">'+esc(x.title)+'</span></div>').join(''):'')
+  +(d.cal.length?'<a class="b" href="'+esc(cb('event:'+d.cal.join('\n'),'cal'))+'">'+t('cal')+' ('+d.cal.length+')</a>':'')
+  +(d.type==='bill'&&!d.paid?'<button class="s" data-save="'+i+'">'+t('save')+'</button>':'')
+  +(d.claim?'<button class="s" data-claim="'+i+'">'+t('claim')+'</button>':'')+'</div>'}).join('');
+ document.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>{const d=r.docs[+b.dataset.save];const L=S.get('due',[]);
+   if(!L.some(x=>x.s===d.sender&&x.d===d.due))L.push({s:d.sender,a:d.amount,d:d.due||today});S.set('due',L);b.textContent=t('saved');renderDue();renderToday()});
+ document.querySelectorAll('[data-claim]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(r.docs[+b.dataset.claim].claim);b.textContent=t('copied')}catch(e){}})}
+function renderDue(){const L=S.get('due',[]).sort((a,b)=>a.d<b.d?-1:1);if(!L.length){$('due').innerHTML='<p class="m">'+t('none')+'</p>';return}
+ const tot=L.reduce((s,x)=>s+(x.a||0),0);
+ $('due').innerHTML=L.map((x,i)=>{const dd=Math.round((new Date(x.d)-new Date(today))/864e5);return '<div class="row"><span>'+esc(x.s)+'<br><span class="'+(dd<0?'no':dd<=3?'warn':'m')+'">'+esc(HHS.fmtNb(x.d))+' · '+(dd<0?t('overdue'):dd+' '+t('days'))+'</span></span><span>kr '+esc(HHS.fmtAmt(x.a))+'<br><button class="s" style="padding:6px 10px;margin:4px 0 0" data-paid="'+i+'">'+t('markPaid')+'</button></span></div>'}).join('')
+  +'<div class="row"><b>'+t('total')+'</b><b>kr '+esc(HHS.fmtAmt(tot))+'</b></div>';
+ document.querySelectorAll('[data-paid]').forEach(b=>b.onclick=()=>{L.splice(+b.dataset.paid,1);S.set('due',L);renderDue();renderToday()})}
+function renderToday(){const L=S.get('due',[]),soon=L.filter(x=>(new Date(x.d)-new Date(today))/864e5<=7);
+ $('today').innerHTML='<h2>'+(lang==='es'?'Hoy':'Today')+'</h2><p>'+(soon.length?(lang==='es'?soon.length+' pagos en los próximos 7 días':soon.length+' payment(s) due within 7 days'):t('none'))+'</p>'}
+// return from the shortcut: read, show, then wipe the text from the address bar
+const q=new URLSearchParams(location.search),r=q.get('r');
+if(r){const res=q.get('result')||'';history.replaceState(null,'',self);
+ if(r==='scan'){res?showDocs(res):$('result').innerHTML='<div class="c no">'+esc(t('err'))+'</div>'}
+ else if(r==='cal'){$('result').innerHTML='<div class="c ok">'+esc(t('calDone'))+'</div>'}
+ else{$('result').innerHTML='<div class="c warn">'+esc(t('err'))+'</div>'}}
+$('parseBtn').onclick=()=>{const v=$('paste').value;$('paste').value='';showDocs(v)};
+$('lang').onclick=()=>{lang=lang==='en'?'es':'en';S.set('lang',lang);paint()};
+$('ver').textContent='v1 · '+(matchMedia('(display-mode: standalone)').matches?'home screen':'Safari');
+paint();
 </script></body></html>
