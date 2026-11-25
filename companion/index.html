@@ -72,11 +72,11 @@ function renderToday(){const L=S.get('due',[]),soon=L.filter(x=>(new Date(x.d)-n
 // return from the shortcut: read, show, then wipe the text from the address bar
 const q=new URLSearchParams(location.search),r=q.get('r');
 if(r&&!r.startsWith('chk-')){const res=q.get('result')||'';history.replaceState(null,'',self);
- if(r==='scan'){res?showDocs(res):$('result').innerHTML='<div class="c no">'+esc(t('err'))+'</div>'}
+ if(r==='scan'){res?showDocs(res):$('result').innerHTML='<div class="c no">'+esc(t('err'))+'</div>';const dbg=document.createElement('p');dbg.className='m';dbg.textContent='v1.3 · received '+res.length+' characters'+(res.length?' · starts: "'+res.slice(0,40).replace(/\s+/g,' ')+'…"':'');$('result').appendChild(dbg)}
  else if(r==='cal'){$('result').innerHTML='<div class="c ok">'+esc(t('calDone'))+'</div>'}
  else{$('result').innerHTML='<div class="c warn">'+esc(t('err'))+'</div>'}}
 $('parseBtn').onclick=()=>{const v=$('paste').value;$('paste').value='';showDocs(v)};
 $('lang').onclick=()=>{lang=lang==='en'?'es':'en';S.set('lang',lang);paint()};
-$('ver').textContent='v1 · '+(matchMedia('(display-mode: standalone)').matches?'home screen':'Safari');
+$('ver').textContent='v1.3 · '+(matchMedia('(display-mode: standalone)').matches?'home screen':'Safari');
 paint();
 </script></body></html>
