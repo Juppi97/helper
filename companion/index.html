@@ -55,7 +55,7 @@ function calLines(d){const who=goodSender(d)||t(d.type);
  return d.deadlines.filter(x=>x.iso>=today).map(x=>x.iso+' | '+t('dlIn')+' '+who+' | '+t('fromLetter'))}
 function showDocs(raw){const r=HHS.parse(raw,{today,lang});if(!r.docs.length){$('result').innerHTML='<div class="c no">'+esc(t('noNew'))+'</div>';return}
  const parts=String(raw).split(/^=+\s*HH-FILE\s*=+\s*$/m).map(s=>s.trim()).filter(s=>s.length>10);
- $('result').innerHTML=r.docs.map((d,i)=>{const ck=checks(parts[i]||'');return '<div class="c"><h2>'+esc(t(d.type))+': '+esc(d.sender)+'</h2>'
+ $('result').innerHTML=r.docs.map((d,i)=>{const ck=checks(parts[i]||'');return '<div class="c"><h2>'+esc(t(d.type))+(goodSender(d)?': '+esc(goodSender(d)):'')+'</h2>'
   +(d.amount!=null?'<div class="row"><span>'+t('amount')+'</span><span class="big">kr '+esc(HHS.fmtAmt(d.amount))+'</span></div>':'')
   +(d.due?'<div class="row"><span>'+t('due')+'</span><span>'+esc(HHS.fmtNb(d.due))+'</span></div>':'')
   +(d.paid?'<p class="ok">'+t('paid')+'</p>':'')+ck.map(c=>'<p class="'+c[0]+'">'+esc(c[1])+'</p>').join('')
