@@ -41,6 +41,7 @@ chk:{en:"AI can make mistakes. Check dates, amounts and names against the origin
 hSet:{en:"Shortcut",es:"Atajo"},scL:{en:"Name of your shortcut (set up once, see below)",es:"Nombre de tu atajo (se crea una vez, ver abajo)"},
 test:{en:"Test the shortcut",es:"Probar el atajo"},cpP:{en:"Copy prompt (fallback)",es:"Copiar instrucción (alternativa)"},
 copied:{en:"Copied.",es:"Copiado."},cpFail:{en:"Copy blocked. Select the text by hand.",es:"Copiar está bloqueado. Selecciona el texto a mano."},
+auto:{en:"Starting the shortcut…",es:"Iniciando el atajo…"},autoFail:{en:"If nothing happened, tap Run on this iPhone below.",es:"Si no pasó nada, pulsa Ejecutar en este iPhone abajo."},
 empty:{en:"Type or paste some text first.",es:"Escribe o pega texto primero."},
 testOk:{en:"Test passed: the shortcut ran and the answer came back here.",es:"Prueba superada: el atajo se ejecutó y la respuesta volvió aquí."},
 hBuild:{en:"Set up the shortcut once (3 minutes, each iPhone)",es:"Crear el atajo una vez (3 minutos, cada iPhone)"},
@@ -73,8 +74,9 @@ const p=document.createElement("pre");p.textContent="Actions:\n1 Get Text from I
 async function cp(s){try{await navigator.clipboard.writeText(s);$("msg").textContent=t("copied")}catch(e){$("msg").textContent=t("cpFail")}}
 function show(r){$("res").textContent=r;$("resC").hidden=false;$("resC").scrollIntoView()}
 function readHash(){const h=location.hash.slice(1);if(!h)return;
-if(!/^[rb]=/.test(h)){const q=new URLSearchParams(h);if(q.get("l")=="es"||q.get("l")=="en")L=q.get("l");const t=q.get("t");if(t&&D.tasks.some(o=>o.id==t))task=t;if(q.get("n")){SC=q.get("n").slice(0,40);try{localStorage.setItem("ai_sc",SC)}catch(e){}}
+if(!/^[rb]=/.test(h)){const q=new URLSearchParams(h);if(q.get("l")=="es"||q.get("l")=="en")L=q.get("l");const tk=q.get("t");if(tk&&D.tasks.some(o=>o.id==tk))task=tk;if(q.get("n")){SC=q.get("n").slice(0,40);try{localStorage.setItem("ai_sc",SC)}catch(e){}}
 if(q.get("x"))$("txt").value=q.get("x");if(q.get("w"))$("want").value=q.get("w");history.replaceState(null,"",location.pathname+location.search);render();
+if(q.get("run")&&$("txt").value.trim()){$("msg").textContent=t("auto");setTimeout(()=>{location.href=link(prompt())},350);setTimeout(()=>{$("msg").textContent=t("autoFail")},3500)}
 if(q.get("setup")||q.get("test")){$("setup").open=!!q.get("setup");$("test").scrollIntoView();if(q.get("test"))$("test").focus()}return}
 const m=h.match(/^([rb])=([\s\S]*)$/);if(!m)return;let r;
 try{r=m[1]=="r"?decodeURIComponent(m[2].replace(/\+/g," ")):new TextDecoder().decode(Uint8Array.from(atob(m[2]),c=>c.charCodeAt(0)))}catch(e){r=m[2]}
