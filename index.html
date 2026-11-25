@@ -1,97 +1,20 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>AI helper</title>
-<style>
-:root{--bg:#fafaf7;--fg:#1d1d1f;--mut:#6b6b70;--card:#fff;--bd:#d9d9de;--ac:#0a6cff;--ok:#1a7f37}
-@media(prefers-color-scheme:dark){:root{--bg:#111113;--fg:#f2f2f4;--mut:#9a9aa2;--card:#1c1c1f;--bd:#3a3a40;--ac:#4c9aff;--ok:#4ac26b}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.45 -apple-system,system-ui,sans-serif;padding:16px;max-width:640px;margin:auto}
-h1{font-size:22px;margin:4px 0 2px}h2{font-size:17px;margin:0 0 8px}.m{color:var(--mut);font-size:14px}
-.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin:12px 0}
-textarea,input{width:100%;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px}
-textarea{min-height:130px}
-.row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-button,a.b{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:10px;padding:10px 14px;text-decoration:none;display:inline-block}
-.p{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600;padding:14px 18px;width:100%;text-align:center}
-.on{outline:2px solid var(--ac)}pre{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px;font-size:14px;margin:6px 0}
-#res{white-space:pre-wrap;font-size:18px}details summary{font-weight:600;cursor:pointer}
-</style></head><body>
-<h1 id="t">AI helper</h1><div class="m" id="sub"></div>
-<div class="row"><button id="lEN">English</button><button id="lES">Español</button></div>
-<div class="c" id="resC" hidden><div id="big" style="font-size:20px;font-weight:700;margin-bottom:8px"></div><h2 id="hRes"></h2><div id="res"></div><div class="row"><button id="cpRes" class="p" style="width:auto;flex:1"></button><a class="b" id="back" target="_blank" rel="noopener"></a><button id="useRes"></button><button id="clrRes"></button></div><div class="m" id="chk"></div></div>
-<button class="p" id="pr" style="margin:12px 0 0"></button><div class="c"><h2 id="hIn"></h2><textarea id="txt" autocomplete="off" autocapitalize="off"></textarea><div class="m" id="inH"></div>
-<div class="row" id="tasks"></div>
-<div id="wantW" hidden><div class="m" id="wantL"></div><input id="want" autocomplete="off"></div></div>
-<a class="b p" id="go" href="#"></a><div class="m" id="goH" style="margin-top:6px"></div>
-<div class="c"><h2 id="hSet"></h2><div class="m" id="scL"></div><input id="scn" maxlength="40" autocomplete="off">
-<div class="row"><button id="test"></button><button id="cpP"></button></div><div class="m" id="msg"></div></div>
-<details class="c" id="setup"><summary id="hBuild"></summary><div id="build"></div></details>
-<div class="m" id="priv"></div>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Working…</title>
+<style>:root{color-scheme:light dark}body{margin:0;font:19px -apple-system,system-ui,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center;padding:20px;background:#fafaf7;color:#1d1d1f}
+@media(prefers-color-scheme:dark){body{background:#111113;color:#f2f2f4}}a,button{display:block;margin:14px auto;font:inherit;font-weight:700;padding:16px 22px;border-radius:14px;background:#0a6cff;color:#fff;border:0;text-decoration:none}.s{font-size:15px;opacity:.7}[hidden]{display:none}</style></head><body>
+<div><div id="m">Working…</div><div class="s" id="s"></div><a id="go" hidden>Open Shortcuts</a><a id="bk" hidden>Back to app</a></div>
 <script>
-const APP="https://claude.ai/artifact/7GeHGrqt1o3rGeVn6oEZ2G";const D={"tasks": [{"id": "sum", "label": {"en": "Summarize", "es": "Resumir"}, "prompt": "You help a family in Norway understand an official letter or message. Summarize the text below in {{LANG}} in at most 5 short bullet points. Say who it is from, what they want, and what we must do. Do not invent facts.\n\nTEXT:\n{{TEXT}}"}, {"id": "dl", "label": {"en": "Find deadlines", "es": "Buscar plazos"}, "prompt": "Find every deadline, date and amount to pay in the text below. Answer in {{LANG}} as a list: date, what must be done. If there is none, say 'No deadline found'. Do not guess dates.\n\nTEXT:\n{{TEXT}}"}, {"id": "reply", "label": {"en": "Draft Norwegian reply", "es": "Redactar respuesta en noruego"}, "prompt": "Write a short, polite reply in Norwegian (bokmål) to the message below. What I want to say (in my own words): {{WANT}}\nThen add one line with a {{LANG}} translation. Do not add facts, ID numbers or addresses I did not give.\n\nMESSAGE:\n{{TEXT}}"}, {"id": "tr", "label": {"en": "Translate", "es": "Traducir"}, "prompt": "Translate the text below into {{LANG}}. Keep names, dates and amounts exactly.\n\nTEXT:\n{{TEXT}}"}], "lang": {"en": "English", "es": "Spanish"}, "sc": "AssistWeb"};let L="en",task=D.tasks[0].id,SC=D.sc;
-try{SC=localStorage.getItem("ai_sc")||SC;L=localStorage.getItem("ai_l")||L}catch(e){}
-const T={
-t:{en:"AI helper",es:"Asistente de IA"},
-sub:{en:"Paste or scan text, pick a task, tap Run. The answer comes back here by itself.",es:"Pega o escanea texto, elige una tarea y pulsa Ejecutar. La respuesta vuelve aquí sola."},
-hIn:{en:"Text to work on",es:"Texto con el que trabajar"},
-inH:{en:"Tap in the box and choose Scan Text (camera icon in the keyboard menu) to read a photo of a letter.",es:"Toca el cuadro y elige Escanear texto (icono de cámara en el menú del teclado) para leer una foto de una carta."},
-wantL:{en:"What I want to say (any language)",es:"Lo que quiero decir (en cualquier idioma)"},
-go:{en:"Run on this iPhone",es:"Ejecutar en este iPhone"},
-goH:{en:"Opens the Shortcuts app for a few seconds, then returns here with the answer. Runs on the phone: no server sees your text.",es:"Abre la app Atajos unos segundos y vuelve aquí con la respuesta. Se ejecuta en el teléfono: ningún servidor ve tu texto."},
-back:{en:"Back to app",es:"Volver a la app"},copiedBig:{en:"✓ Answer copied. Tap X (top left) to return to the app, then tap Paste answer.",es:"✓ Respuesta copiada. Pulsa X (arriba a la izquierda) para volver a la app y luego Pegar respuesta."},copyBig:{en:"Tap Copy answer, then X (top left) to return to the app, then tap Paste answer.",es:"Pulsa Copiar respuesta, luego X (arriba a la izquierda) para volver a la app y luego Pegar respuesta."},pr:{en:"Paste text from the app and run",es:"Pegar texto de la app y ejecutar"},pasteBlocked:{en:"Paste was not allowed. Press and hold in the text box and tap Paste.",es:"No se permitió pegar. Mantén pulsado en el cuadro y pulsa Pegar."},hRes:{en:"Answer",es:"Respuesta"},cpRes:{en:"Copy answer",es:"Copiar respuesta"},useRes:{en:"Use as text",es:"Usar como texto"},clrRes:{en:"Clear",es:"Borrar"},
-chk:{en:"AI can make mistakes. Check dates, amounts and names against the original.",es:"La IA puede equivocarse. Comprueba fechas, importes y nombres con el original."},
-hSet:{en:"Shortcut",es:"Atajo"},scL:{en:"Name of your shortcut (set up once, see below)",es:"Nombre de tu atajo (se crea una vez, ver abajo)"},
-test:{en:"Test the shortcut",es:"Probar el atajo"},cpP:{en:"Copy prompt (fallback)",es:"Copiar instrucción (alternativa)"},
-copied:{en:"Copied.",es:"Copiado."},cpFail:{en:"Copy blocked. Select the text by hand.",es:"Copiar está bloqueado. Selecciona el texto a mano."},
-auto:{en:"Starting the shortcut…",es:"Iniciando el atajo…"},autoFail:{en:"If nothing happened, tap Run on this iPhone below.",es:"Si no pasó nada, pulsa Ejecutar en este iPhone abajo."},
-empty:{en:"Type or paste some text first.",es:"Escribe o pega texto primero."},
-testOk:{en:"Test passed: the shortcut ran and the answer came back here.",es:"Prueba superada: el atajo se ejecutó y la respuesta volvió aquí."},
-hBuild:{en:"Set up the shortcut once (3 minutes, each iPhone)",es:"Crear el atajo una vez (3 minutos, cada iPhone)"},
-priv:{en:"No accounts, no cookies, no analytics. Your text and the answer travel only inside links on this phone (the part after # is never sent to a server). Nothing is saved except the language and shortcut name.",es:"Sin cuentas, sin cookies, sin analítica. Tu texto y la respuesta viajan solo en enlaces dentro de este teléfono (lo que va tras # nunca se envía a un servidor). Solo se guarda el idioma y el nombre del atajo."}
-};
-const $=i=>document.getElementById(i),t=k=>T[k][L];
-function pageUrl(){return location.origin+location.pathname}
-function prompt(){const o=D.tasks.find(x=>x.id==task);const w=$("want").value.trim()||"(not given)";
-return o.prompt.replace("{{LANG}}",D.lang[L]).replace("{{WANT}}",w).replace("{{TEXT}}",$("txt").value.trim())}
-function link(p){return "shortcuts://x-callback-url/run-shortcut?name="+encodeURIComponent($("scn").value.trim()||SC)+"&input=text&text="+encodeURIComponent(p)}
-function render(){document.documentElement.lang=L;try{localStorage.setItem("ai_l",L)}catch(e){}
-$("t").textContent=t("t");$("sub").textContent=t("sub");$("hIn").textContent=t("hIn");$("pr").textContent=t("pr");$("inH").textContent=t("inH");$("wantL").textContent=t("wantL");
-$("go").textContent=t("go");$("goH").textContent=t("goH");$("hRes").textContent=t("hRes");$("cpRes").textContent=t("cpRes");$("back").textContent=t("back");$("useRes").textContent=t("useRes");$("clrRes").textContent=t("clrRes");$("chk").textContent=t("chk");
-$("hSet").textContent=t("hSet");$("scL").textContent=t("scL");$("test").textContent=t("test");$("cpP").textContent=t("cpP");$("hBuild").textContent=t("hBuild");$("priv").textContent=t("priv");
-$("lEN").className=L=="en"?"on":"";$("lES").className=L=="es"?"on":"";$("scn").value=SC;
-$("tasks").innerHTML="";D.tasks.forEach(o=>{const b=document.createElement("button");b.textContent=o.label[L];b.className=o.id==task?"on":"";b.onclick=()=>{task=o.id;render()};$("tasks").appendChild(b)});
-$("wantW").hidden=task!="reply";build()}
-function build(){const u=pageUrl();const bp="Create a shortcut named "+($("scn").value.trim()||SC)+". It must not ask me any questions. Step 1: Get Text from Shortcut Input. Step 2: Use Model, with the On-Device model, and send it Shortcut Input as the prompt. Step 3: Use the Encode action on the model response with URL encoding. Step 4: Text action with exactly this content: "+u+"#r=  followed directly by the encoded text from step 3. Step 5: Open URLs with the text from step 4. Set the shortcut to accept Text as input.";
-$("build").innerHTML="";const ol=document.createElement("ol");(L=="en"?[
-"Open Shortcuts, tap +, tap the Apple Intelligence / Build with Intelligence field (or the Siri-style box at the bottom).",
-"Paste the prompt below (Copy button). Check the result has exactly these 5 actions; fix by hand if Apple's build differs.",
-"Shortcut name must match the field above (default AssistWeb). In shortcut details, make sure it accepts Text input, and that Use Model uses On-Device.",
-"Come back to this page and tap Test the shortcut. First run asks permission to open this page: allow it (Always Allow)."]:[
-"Abre Atajos, pulsa +, pulsa el campo de Apple Intelligence (o el cuadro inferior).",
-"Pega la instrucción de abajo (botón Copiar). Comprueba que tiene exactamente estas 5 acciones; corrígelo a mano si Apple lo monta distinto.",
-"El nombre del atajo debe coincidir con el campo de arriba (por defecto AssistWeb). En los detalles, que acepte Texto como entrada y que Usar modelo use En el dispositivo.",
-"Vuelve a esta página y pulsa Probar el atajo. La primera vez pide permiso para abrir esta página: permítelo (Permitir siempre)."]).forEach(s=>{const li=document.createElement("li");li.textContent=s;ol.appendChild(li)});$("build").appendChild(ol);
-const pre=document.createElement("pre");pre.textContent=bp;$("build").appendChild(pre);const b=document.createElement("button");b.textContent=t("cpRes");b.onclick=()=>cp(bp);$("build").appendChild(b);
-const p=document.createElement("pre");p.textContent="Actions:\n1 Get Text from Input (Shortcut Input)\n2 Use Model (On-Device) → Response\n3 Encode [Model Response] (URL)\n4 Text: "+u+"#r=[Encoded Text]\n5 Open URLs [Text]";$("build").appendChild(p)}
-async function cp(s){try{await navigator.clipboard.writeText(s);$("msg").textContent=t("copied")}catch(e){$("msg").textContent=t("cpFail")}}
-async function autoCopy(r){try{await navigator.clipboard.writeText(r);$("big").textContent=t("copiedBig");$("big").style.color="var(--ok)"}catch(e){$("big").textContent=t("copyBig");$("big").style.color="var(--fg)"}}
-async function pasteRun(){let v="";try{v=await navigator.clipboard.readText()}catch(e){$("msg").textContent=t("pasteBlocked");return}
-if(v.indexOf("HHAI1")===0){try{const j=JSON.parse(v.slice(5));if(D.tasks.some(o=>o.id==j.t))task=j.t;if(j.l=="es"||j.l=="en")L=j.l;if(j.n)SC=String(j.n).slice(0,40);$("txt").value=j.x||"";$("want").value=j.w||""}catch(e){$("txt").value=v}}else $("txt").value=v;render();if(!$("txt").value.trim()){$("msg").textContent=t("empty");return}location.href=link(prompt())}
-$("pr").onclick=pasteRun;
-function show(r){autoCopy(r);$("back").href=APP+"#ai="+encodeURIComponent(r);$("res").textContent=r;$("resC").hidden=false;$("resC").scrollIntoView()}
-function readHash(){const h=location.hash.slice(1);if(!h)return;
-if(!/^[rb]=/.test(h)){const q=new URLSearchParams(h);if(q.get("l")=="es"||q.get("l")=="en")L=q.get("l");const tk=q.get("t");if(tk&&D.tasks.some(o=>o.id==tk))task=tk;if(q.get("n")){SC=q.get("n").slice(0,40);try{localStorage.setItem("ai_sc",SC)}catch(e){}}
-if(q.get("x"))$("txt").value=q.get("x");if(q.get("w"))$("want").value=q.get("w");history.replaceState(null,"",location.pathname+location.search);render();
-if(q.get("run")&&$("txt").value.trim()){$("msg").textContent=t("auto");setTimeout(()=>{location.href=link(prompt())},350);setTimeout(()=>{$("msg").textContent=t("autoFail")},3500)}
-if(q.get("setup")||q.get("test")){$("setup").open=!!q.get("setup");$("test").scrollIntoView();if(q.get("test"))$("test").focus()}return}
-const m=h.match(/^([rb])=([\s\S]*)$/);if(!m)return;let r;
-try{r=m[1]=="r"?decodeURIComponent(m[2].replace(/\+/g," ")):new TextDecoder().decode(Uint8Array.from(atob(m[2]),c=>c.charCodeAt(0)))}catch(e){r=m[2]}
-history.replaceState(null,"",location.pathname+location.search);
-if(/OK-\d{4}/.test(r)&&sessionStorage.getItem("ai_t")&&r.includes(sessionStorage.getItem("ai_t"))){$("msg").textContent=t("testOk")}
-show(r)}
-$("lEN").onclick=()=>{L="en";render()};$("lES").onclick=()=>{L="es";render()};
-$("scn").oninput=()=>{SC=$("scn").value;try{localStorage.setItem("ai_sc",SC)}catch(e){}build()};
-$("go").onclick=e=>{e.preventDefault();if(!$("txt").value.trim()){$("msg").textContent=t("empty");return}location.href=link(prompt())};
-$("test").onclick=()=>{const c="OK-"+(1000+Math.floor(Math.random()*9000));try{sessionStorage.setItem("ai_t",c)}catch(e){}location.href=link("Reply with only this exact code and nothing else: "+c)};
-$("cpP").onclick=()=>{if(!$("txt").value.trim()){$("msg").textContent=t("empty");return}cp(prompt())};
-$("cpRes").onclick=()=>cp($("res").textContent);$("useRes").onclick=()=>{$("txt").value=$("res").textContent;$("resC").hidden=true};$("clrRes").onclick=()=>{$("res").textContent="";$("resC").hidden=true};
-render();readHash();addEventListener("hashchange",readHash);
+const ART="https://claude.ai/artifact/7GeHGrqt1o3rGeVn6oEZ2G",H=location.hash.slice(1),q=new URLSearchParams(H),$=i=>document.getElementById(i);
+const es=(navigator.language||"").startsWith("es");
+function sc(name,text){return"shortcuts://run-shortcut?name="+encodeURIComponent(name)+(text?"&input=text&text="+encodeURIComponent(text):"")}
+function back(){return ART}
+try{history.replaceState(null,"",location.pathname)}catch(e){}
+let url=null;
+const m=H.match(/^(bill|letter|unpaid|text|r)=([\s\S]*)$/);
+if(m){/* fallback: a shortcut that returned here instead of the app: forward the answer */url=ART+"#ai="+(m[1]==="r"?"text":m[1])+"~"+m[2];$("m").textContent=es?"Volviendo…":"Returning…"}
+else if(q.get("s")){url=sc(q.get("s"),q.get("x")||(q.get("c")==="1"?"cal":"nocal"))}
+else if(q.get("create")){url="shortcuts://create-shortcut"}
+else if(q.get("test")){url=sc(q.get("n")||"HH Text","Reply with only: Everything works")}
+else{$("m").textContent="";$("bk").hidden=false;$("bk").href=back();$("bk").textContent=es?"Volver a la app":"Back to app"}
+if(url){setTimeout(()=>{location.href=url},120);
+ setTimeout(()=>{if(!document.hidden){$("s").textContent=es?"Si no pasó nada, pulsa abajo.":"If nothing happened, tap below.";$("go").hidden=false;$("go").href=url;$("go").textContent=es?"Abrir":"Open";$("bk").hidden=false;$("bk").href=back();$("bk").textContent=es?"Volver a la app":"Back to app"}},2500)}
 </script></body></html>
