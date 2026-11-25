@@ -9,7 +9,7 @@ const testBill=()=>{const d=new Date(Date.now()+20*864e5),f=n=>String(n).padStar
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const W={en:{run:'Run the check',again:'Run again',ok:'Works',next:'Next check',all:'Phone setup check',done:'All four checks pass. Your phone is ready.',one:'This check works.',wait:'Not run yet',got:'Shortcut answered'},
          es:{run:'Hacer la prueba',again:'Repetir',ok:'Funciona',next:'Siguiente prueba',all:'Prueba de configuración',done:'Las cuatro pruebas funcionan. Tu móvil está listo.',one:'Esta prueba funciona.',wait:'Aún no probado',got:'Respuesta del atajo'}};
-fetch('checks.json').then(r=>r.json()).then(({checks})=>{
+fetch('checks.json?v=14').then(r=>r.json()).then(({checks})=>{
  const want=q.get('check'),ret=q.get('r')||'',res=q.get('result')||'';
  let mode=want;if(ret.startsWith('chk-')&&!mode)mode=S.get('chkMode',ret.slice(4));
  if(!mode)return;S.set('chkMode',mode);
@@ -21,7 +21,7 @@ fetch('checks.json').then(r=>r.json()).then(({checks})=>{
    if(m&&id==='setup'){if(m[1]!=='3')fix='F';else if(!m[2]||/sorry|can.?t|cannot|unable|lo siento|no puedo/i.test(m[2]))fix='M'}
    st[id]={ok:!fix,fix,at:Date.now()};S.set('chk',st)}}
  const w=W[L()];
- const back=(c,x)=>encodeURIComponent(self+'?check='+mode+'&r=chk-'+c.id+(x||''));
+ const back=(c,x)=>encodeURIComponent(self+'?v=14&check='+mode+'&r=chk-'+c.id+(x||''));
  const href=c=>'shortcuts://x-callback-url/run-shortcut?name=HH&input=text&text='+encodeURIComponent('cb:'+c.mode.replace('{TOMORROW}',tomorrow()).replace('{TESTBILL}',testBill()))
    +'&x-success='+back(c)+'&x-cancel='+back(c,'&cancel=1')+'&x-error='+back(c,'&error=1');
  const nextC=list.find(c=>!(st[c.id]&&st[c.id].ok));

@@ -32,7 +32,7 @@ textarea{width:100%;box-sizing:border-box;min-height:120px;font:15px ui-monospac
 <a class="b s" href="../shortcuts/HH-Inbox.shortcut" download="HH-Inbox.shortcut" style="background:transparent;color:var(--acc);border:1px solid var(--line)">2. HH Inbox shortcut (share sheet)</a>
 <a class="b s" href="https://claude.ai/artifact/7GeHGrqt1o3rGeVn6oEZ2G" target="_blank" style="background:transparent;color:var(--acc);border:1px solid var(--line)" data-t="app">Open the family app</a>
 <p class="m" id="ver"></p></div>
-<script src="scan.js"></script><script src="check.js"></script><script src="nocheck.js"></script>
+<script src="scan.js?v=14"></script><script src="check.js?v=14"></script><script src="nocheck.js?v=14"></script>
 <script>
 const T={en:{title:'Papers on this phone',sub:'Bills and letters are read here and stay on this phone. Nothing is uploaded.',scanH:'A paper arrived',scanP:'Share the PDF, photo or email to HH Inbox (share sheet), then tap.',scanB:'Read the newest paper',unpaidB:'Read everything in Unpaid',dueH:'Due list (this phone only)',manH:'No shortcut? Paste the text',manB:'Read pasted text',setH:'Set up once',setP:'Open this page in Safari (not inside another app). Tap a button, tap Download, then the blue arrow (Downloads), tap the file and Add Shortcut.',app:'Open the family app',
  bill:'Bill',letter:'Letter',from:'From',amount:'Amount',due:'Due',paid:'Already paid',kidOk:'KID number checks out',kidBad:'KID number looks wrong: check before paying',accOk:'Account number checks out',accBad:'Account number looks wrong: check before paying',dl:'Deadlines',cal:'Add to calendar',save:'Add to due list',saved:'Added',claim:'Copy text for NAV',copied:'Copied',none:'Nothing due. Nice.',overdue:'overdue',days:'days',markPaid:'Paid',total:'Total due',back:'Came back from the shortcut',err:'The shortcut did not return text. Did you share the paper to HH Inbox first?',calDone:'Added to your calendar',noNew:'The newest paper has no readable text yet. Share a bill or letter to HH Inbox, then tap again.'},
@@ -43,7 +43,7 @@ let lang=S.get('lang',(navigator.language||'en').startsWith('es')?'es':'en');con
 const today=new Date().toISOString().slice(0,10),self=location.origin+location.pathname,$=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function cb(mode,tag){return 'shortcuts://x-callback-url/run-shortcut?name=HH&input=text&text='+encodeURIComponent('cb:'+mode)
- +'&x-success='+encodeURIComponent(self+'?r='+tag)+'&x-cancel='+encodeURIComponent(self+'?r=cancel')+'&x-error='+encodeURIComponent(self+'?r=error')}
+ +'&x-success='+encodeURIComponent(self+'?v=14&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=14&r=cancel')+'&x-error='+encodeURIComponent(self+'?v=14&r=error')}
 function paint(){document.documentElement.lang=lang;$('lang').textContent=lang==='en'?'ES':'EN';document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
  $('scanInbox').href=cb('scan:inbox','scan');$('scanUnpaid').href=cb('scan:unpaid','scan');renderDue();renderToday()}
 // KID / account check on the raw text, never stored
@@ -72,11 +72,11 @@ function renderToday(){const L=S.get('due',[]),soon=L.filter(x=>(new Date(x.d)-n
 // return from the shortcut: read, show, then wipe the text from the address bar
 const q=new URLSearchParams(location.search),r=q.get('r');
 if(r&&!r.startsWith('chk-')){const res=q.get('result')||'';history.replaceState(null,'',self);
- if(r==='scan'){res?showDocs(res):$('result').innerHTML='<div class="c no">'+esc(t('err'))+'</div>';const dbg=document.createElement('p');dbg.className='m';dbg.textContent='v1.3 · received '+res.length+' characters'+(res.length?' · starts: "'+res.slice(0,40).replace(/\s+/g,' ')+'…"':'');$('result').appendChild(dbg)}
+ if(r==='scan'){res?showDocs(res):$('result').innerHTML='<div class="c no">'+esc(t('err'))+'</div>';const dbg=document.createElement('p');dbg.className='m';dbg.textContent='v1.4 · received '+res.length+' characters'+(res.length?' · starts: "'+res.slice(0,40).replace(/\s+/g,' ')+'…"':'');$('result').appendChild(dbg)}
  else if(r==='cal'){$('result').innerHTML='<div class="c ok">'+esc(t('calDone'))+'</div>'}
  else{$('result').innerHTML='<div class="c warn">'+esc(t('err'))+'</div>'}}
 $('parseBtn').onclick=()=>{const v=$('paste').value;$('paste').value='';showDocs(v)};
 $('lang').onclick=()=>{lang=lang==='en'?'es':'en';S.set('lang',lang);paint()};
-$('ver').textContent='v1.3 · '+(matchMedia('(display-mode: standalone)').matches?'home screen':'Safari');
+$('ver').textContent='v1.4 · '+(matchMedia('(display-mode: standalone)').matches?'home screen':'Safari');
 paint();
 </script></body></html>
