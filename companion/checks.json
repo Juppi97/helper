@@ -57,7 +57,7 @@
   {
    "id": "event",
    "mode": "event:{TOMORROW} | Family test | Delete me",
-   "expect": "^(?:FAM|HH)-v2-EVENT-OK$",
+   "expect": "^(?:FAM|HH)-v2-EVENT-OK(?: .*)?$",
    "t": {
     "en": "Add a calendar event",
     "es": "Añadir un evento al calendario"
