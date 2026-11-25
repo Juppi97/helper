@@ -1,0 +1,73 @@
+{
+ "v": 1,
+ "checks": [
+  {
+   "id": "setup",
+   "mode": "setup:CHECK",
+   "expect": "^HH-v2-SETUP-CHECK-F(\\d+)-M(.*)$",
+   "t": {
+    "en": "Create HH and check the folders",
+    "es": "Crear HH y comprobar las carpetas"
+   },
+   "fix": {
+    "F": {
+     "en": "The Home Hunt folder does not have its three sub-folders. In Files > On My iPhone, make sure the folder Home Hunt exists, then check that each Save File action points to Home Hunt and has the right Destination Path. Run the test again.",
+     "es": "The Home Hunt folder does not have its three sub-folders. In Files > On My iPhone, make sure the folder Home Hunt exists, then check that each Save File action points to Home Hunt and has the right Destination Path. Run the test again."
+    },
+    "M": {
+     "en": "The on-device model did not answer. Turn on Apple Intelligence in iPhone Settings > Apple Intelligence & Siri, wait until it has downloaded, then run the test again.",
+     "es": "The on-device model did not answer. Turn on Apple Intelligence in iPhone Settings > Apple Intelligence & Siri, wait until it has downloaded, then run the test again."
+    },
+    "x": {
+     "en": "The check text did not come back. Make sure the last actions of the block are Copy to Clipboard, then Open URLs, and the shortcut is named exactly HH. Run the test again.",
+     "es": "The check text did not come back. Make sure the last actions of the block are Copy to Clipboard, then Open URLs, and the shortcut is named exactly HH. Run the test again."
+    }
+   }
+  },
+  {
+   "id": "file",
+   "mode": "file:test",
+   "expect": "^HH-v2-FILE-OK$",
+   "t": {
+    "en": "Create a test bill",
+    "es": "Crear una factura de prueba"
+   },
+   "fix": {
+    "x": {
+     "en": "The test bill was not saved. Check the Save File action in this block (Destination Path Inbox/test-bill.txt) and that the block is above no other block that stops the shortcut. Run the test again.",
+     "es": "The test bill was not saved. Check the Save File action in this block (Destination Path Inbox/test-bill.txt) and that the block is above no other block that stops the shortcut. Run the test again."
+    }
+   }
+  },
+  {
+   "id": "note",
+   "mode": "note:test",
+   "expect": "^HH-v2-NOTES-OK$",
+   "t": {
+    "en": "Check your notes and calendar names",
+    "es": "Comprobar notas y calendario"
+   },
+   "fix": {
+    "x": {
+     "en": "Nothing came back. Check that the notes HH Move and HH Letters exist and their first line is exactly that name. Allow HH to access Notes if iOS asks. Run the check again.",
+     "es": "No volvió nada. Comprueba que existen las notas HH Move y HH Letters y que su primera línea es exactamente ese nombre. Permite que HH acceda a Notas si iOS lo pide. Ejecuta la comprobación de nuevo."
+    }
+   }
+  },
+  {
+   "id": "event",
+   "mode": "event:{TOMORROW} | Home Hunt test | Delete me",
+   "expect": "^HH-v2-EVENT-OK$",
+   "t": {
+    "en": "Add a calendar event",
+    "es": "Añadir un evento al calendario"
+   },
+   "fix": {
+    "x": {
+     "en": "The calendar test did not finish. Open Shortcuts, run HH once by hand and allow Calendar access when iPhone asks, then check the Add New Event action in this block. Run the test again.",
+     "es": "The calendar test did not finish. Open Shortcuts, run HH once by hand and allow Calendar access when iPhone asks, then check the Add New Event action in this block. Run the test again."
+    }
+   }
+  }
+ ]
+}

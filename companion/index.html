@@ -17,6 +17,7 @@ textarea{width:100%;box-sizing:border-box;min-height:120px;font:15px ui-monospac
 <button class="lang" id="lang">ES</button>
 <h1 data-t="title">Papers on this phone</h1>
 <p class="m" data-t="sub">Bills and letters are read here and stay on this phone. Nothing is uploaded.</p>
+<div id="check"></div>
 <div class="c" id="today"></div>
 <div class="c"><h2 data-t="scanH">A paper arrived</h2>
 <p class="m" data-t="scanP">Share the PDF, photo or email to HH Inbox (share sheet), then tap.</p>
@@ -31,7 +32,7 @@ textarea{width:100%;box-sizing:border-box;min-height:120px;font:15px ui-monospac
 <a class="b s" href="../shortcuts/HH-Inbox.shortcut" download="HH-Inbox.shortcut" style="background:transparent;color:var(--acc);border:1px solid var(--line)">2. HH Inbox shortcut (share sheet)</a>
 <a class="b s" href="https://claude.ai/artifact/7GeHGrqt1o3rGeVn6oEZ2G" target="_blank" style="background:transparent;color:var(--acc);border:1px solid var(--line)" data-t="app">Open the family app</a>
 <p class="m" id="ver"></p></div>
-<script src="scan.js"></script><script src="nocheck.js"></script>
+<script src="scan.js"></script><script src="check.js"></script><script src="nocheck.js"></script>
 <script>
 const T={en:{title:'Papers on this phone',sub:'Bills and letters are read here and stay on this phone. Nothing is uploaded.',scanH:'A paper arrived',scanP:'Share the PDF, photo or email to HH Inbox (share sheet), then tap.',scanB:'Read the newest paper',unpaidB:'Read everything in Unpaid',dueH:'Due list (this phone only)',manH:'No shortcut? Paste the text',manB:'Read pasted text',setH:'Set up once',setP:'Open this page in Safari (not inside another app). Tap a button, tap Download, then the blue arrow (Downloads), tap the file and Add Shortcut.',app:'Open the family app',
  bill:'Bill',letter:'Letter',from:'From',amount:'Amount',due:'Due',paid:'Already paid',kidOk:'KID number checks out',kidBad:'KID number looks wrong: check before paying',accOk:'Account number checks out',accBad:'Account number looks wrong: check before paying',dl:'Deadlines',cal:'Add to calendar',save:'Add to due list',saved:'Added',claim:'Copy text for NAV',copied:'Copied',none:'Nothing due. Nice.',overdue:'overdue',days:'days',markPaid:'Paid',total:'Total due',back:'Came back from the shortcut',err:'The shortcut did not return text. Did you share the paper to HH Inbox first?',calDone:'Added to your calendar',noNew:'Nothing to read'},
@@ -70,7 +71,7 @@ function renderToday(){const L=S.get('due',[]),soon=L.filter(x=>(new Date(x.d)-n
  $('today').innerHTML='<h2>'+(lang==='es'?'Hoy':'Today')+'</h2><p>'+(soon.length?(lang==='es'?soon.length+' pagos en los próximos 7 días':soon.length+' payment(s) due within 7 days'):t('none'))+'</p>'}
 // return from the shortcut: read, show, then wipe the text from the address bar
 const q=new URLSearchParams(location.search),r=q.get('r');
-if(r){const res=q.get('result')||'';history.replaceState(null,'',self);
+if(r&&!r.startsWith('chk-')){const res=q.get('result')||'';history.replaceState(null,'',self);
  if(r==='scan'){res?showDocs(res):$('result').innerHTML='<div class="c no">'+esc(t('err'))+'</div>'}
  else if(r==='cal'){$('result').innerHTML='<div class="c ok">'+esc(t('calDone'))+'</div>'}
  else{$('result').innerHTML='<div class="c warn">'+esc(t('err'))+'</div>'}}
