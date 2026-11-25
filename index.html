@@ -72,7 +72,11 @@ const pre=document.createElement("pre");pre.textContent=bp;$("build").appendChil
 const p=document.createElement("pre");p.textContent="Actions:\n1 Get Text from Input (Shortcut Input)\n2 Use Model (On-Device) → Response\n3 Encode [Model Response] (URL)\n4 Text: "+u+"#r=[Encoded Text]\n5 Open URLs [Text]";$("build").appendChild(p)}
 async function cp(s){try{await navigator.clipboard.writeText(s);$("msg").textContent=t("copied")}catch(e){$("msg").textContent=t("cpFail")}}
 function show(r){$("res").textContent=r;$("resC").hidden=false;$("resC").scrollIntoView()}
-function readHash(){const h=location.hash.slice(1);if(!h)return;const m=h.match(/^([rb])=([\s\S]*)$/);if(!m)return;let r;
+function readHash(){const h=location.hash.slice(1);if(!h)return;
+if(!/^[rb]=/.test(h)){const q=new URLSearchParams(h);if(q.get("l")=="es"||q.get("l")=="en")L=q.get("l");const t=q.get("t");if(t&&D.tasks.some(o=>o.id==t))task=t;if(q.get("n")){SC=q.get("n").slice(0,40);try{localStorage.setItem("ai_sc",SC)}catch(e){}}
+if(q.get("x"))$("txt").value=q.get("x");if(q.get("w"))$("want").value=q.get("w");history.replaceState(null,"",location.pathname+location.search);render();
+if(q.get("setup")||q.get("test")){$("setup").open=!!q.get("setup");$("test").scrollIntoView();if(q.get("test"))$("test").focus()}return}
+const m=h.match(/^([rb])=([\s\S]*)$/);if(!m)return;let r;
 try{r=m[1]=="r"?decodeURIComponent(m[2].replace(/\+/g," ")):new TextDecoder().decode(Uint8Array.from(atob(m[2]),c=>c.charCodeAt(0)))}catch(e){r=m[2]}
 history.replaceState(null,"",location.pathname+location.search);
 if(/OK-\d{4}/.test(r)&&sessionStorage.getItem("ai_t")&&r.includes(sessionStorage.getItem("ai_t"))){$("msg").textContent=t("testOk")}
