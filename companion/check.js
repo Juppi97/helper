@@ -6,11 +6,11 @@ const S={get(k,d){try{const v=localStorage.getItem('hhc.'+k);return v==null?d:JS
 const L=()=>(S.get('lang','en')==='es'?'es':'en');
 const tomorrow=()=>{const d=new Date(Date.now()+864e5);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const W={en:{run:'Run the check',again:'Run again',ok:'Works',next:'Next check',all:'Phone setup check',done:'All four checks pass. Your phone is ready.',wait:'Not run yet',got:'Shortcut answered'},
-         es:{run:'Hacer la prueba',again:'Repetir',ok:'Funciona',next:'Siguiente prueba',all:'Prueba de configuración',done:'Las cuatro pruebas funcionan. Tu móvil está listo.',wait:'Aún no probado',got:'Respuesta del atajo'}};
+const W={en:{run:'Run the check',again:'Run again',ok:'Works',next:'Next check',all:'Phone setup check',done:'All four checks pass. Your phone is ready.',one:'This check works.',wait:'Not run yet',got:'Shortcut answered'},
+         es:{run:'Hacer la prueba',again:'Repetir',ok:'Funciona',next:'Siguiente prueba',all:'Prueba de configuración',done:'Las cuatro pruebas funcionan. Tu móvil está listo.',one:'Esta prueba funciona.',wait:'Aún no probado',got:'Respuesta del atajo'}};
 fetch('checks.json').then(r=>r.json()).then(({checks})=>{
  const want=q.get('check'),ret=q.get('r')||'',res=q.get('result')||'';
- let mode=want;if(ret.startsWith('chk-'))mode=S.get('chkMode',ret.slice(4));
+ let mode=want;if(ret.startsWith('chk-')&&!mode)mode=S.get('chkMode',ret.slice(4));
  if(!mode)return;S.set('chkMode',mode);
  const list=mode==='all'?checks:checks.filter(c=>c.id===mode);if(!list.length)return;
  const st=S.get('chk',{});
@@ -20,12 +20,13 @@ fetch('checks.json').then(r=>r.json()).then(({checks})=>{
    if(m&&id==='setup'){if(m[1]!=='3')fix='F';else if(!m[2]||/sorry|can.?t|cannot|unable|lo siento|no puedo/i.test(m[2]))fix='M'}
    st[id]={ok:!fix,fix,at:Date.now()};S.set('chk',st)}}
  const w=W[L()];
+ const back=(c,x)=>encodeURIComponent(self+'?check='+mode+'&r=chk-'+c.id+(x||''));
  const href=c=>'shortcuts://x-callback-url/run-shortcut?name=HH&input=text&text='+encodeURIComponent('cb:'+c.mode.replace('{TOMORROW}',tomorrow()))
-   +'&x-success='+encodeURIComponent(self+'?r=chk-'+c.id)+'&x-cancel='+encodeURIComponent(self+'?r=chk-'+c.id+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?r=chk-'+c.id+'&error=1');
+   +'&x-success='+back(c)+'&x-cancel='+back(c,'&cancel=1')+'&x-error='+back(c,'&error=1');
  const nextC=list.find(c=>!(st[c.id]&&st[c.id].ok));
  box.className='c';box.innerHTML='<h2>'+esc(mode==='all'?w.all:list[0].t[L()])+'</h2>'+list.map(c=>{const r=st[c.id];
    return '<div class="row"><span>'+esc(c.t[L()])+(r&&!r.ok&&c.fix[r.fix]?'<br><span class="no" style="font-size:15px">'+esc(c.fix[r.fix][L()])+'</span>':'')+'</span><span class="'+(r?(r.ok?'ok':'no'):'m')+'">'+(r?(r.ok?'✓ '+w.ok:'✗'):w.wait)+'</span></div>'}).join('')
-  +(nextC?'<a class="b" href="'+esc(href(nextC))+'">'+esc((st[nextC.id]?w.again:w.run)+(mode==='all'?': '+nextC.t[L()]:''))+'</a>':'<p class="ok big" style="margin-top:8px">'+esc(w.done)+'</p>');
+  +(nextC?'<a class="b" href="'+esc(href(nextC))+'">'+esc((st[nextC.id]?w.again:w.run)+(mode==='all'?': '+nextC.t[L()]:''))+'</a>':'<p class="ok big" style="margin-top:8px">'+esc(mode==='all'&&list.length===4?w.done:w.one)+'</p>');
  box.scrollIntoView();
 }).catch(()=>{});
 })();
