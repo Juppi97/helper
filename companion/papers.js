@@ -1,4 +1,4 @@
-/* Papers log: append-only, one JSON per line, in Files > Shortcuts > Home Hunt > papers.log (via HH cb:log / cb:papers:read).
+/* Papers log: append-only, one JSON per line, in Files > Shortcuts > Family > papers.log (via Family cb:log / cb:papers:read).
    A copy of the lines is mirrored in this browser so the page works between syncs. Nothing leaves the phone. */
 const HHL=(()=>{
 const S={get(k,d){try{const v=localStorage.getItem('hhc.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('hhc.'+k,JSON.stringify(v))}catch(e){}}};
