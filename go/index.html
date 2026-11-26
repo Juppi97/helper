@@ -6,7 +6,7 @@
 <script>
 var q=new URLSearchParams(location.search),B='https://juppi97.github.io/helper/shortcuts/';
 var ok=/^[\w\/.-]+\.shortcut$/.test(q.get('f')||''),f=q.get('f'),n=(q.get('n')||'Family').slice(0,40);
-var file=B+f,u=ok?'shortcuts://import-shortcut?url='+file:'';
+var file=B+f,u=ok?file:'';
 if(!ok){document.getElementById('t').textContent='Unknown shortcut';['a','b','c'].forEach(function(i){document.getElementById(i).style.display='none'})}
 else{document.getElementById('a').href=u;document.getElementById('b').href='shortcuts://import-shortcut?url='+encodeURIComponent(file)+'&name='+encodeURIComponent(n);document.getElementById('c').href=file;document.getElementById('t').textContent='Add "'+n+'"';setTimeout(function(){location.href=u},300)}
 </script></body></html>

@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='3.3';
+window.WIZ_V='3.4';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -13,12 +13,12 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const pad=n=>String(n).padStart(2,'0');
 const today=new Date().toISOString().slice(0,10);
 const testBill=()=>{const d=new Date(Date.now()+20*864e5);return 'TESTDOKUMENT Fjellkraft Strøm AS (fiktiv)\nFaktura\nTotalt å betale: kr 500,00\nForfallsdato: '+pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear()};
-const IMP=(f,n)=>'shortcuts://import-shortcut?url='+encodeURIComponent('https://juppi97.github.io/helper/shortcuts/'+f)+'&name='+encodeURIComponent(n);
+const IMP=(f,n)=>'https://juppi97.github.io/helper/shortcuts/'+f;
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family.shortcut':'Family.shortcut','Family'),SHORTCUTS_SETUP=IMP('Family-Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=33&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=33&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=33&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=33&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=33&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=33&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=34&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=34&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=34&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=34&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=34&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=34&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
