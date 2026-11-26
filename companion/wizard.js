@@ -53,6 +53,14 @@ const cbUrl=(mode,tag)=>'shortcuts://x-callback-url/run-shortcut?name=Family&inp
 function chain(modes,tag){let next=self+'?v=20&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=20&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=20&r='+tag+'&error=1')}return next}
 
 let st=S.get('wiz',{});
+const sum=l=>{let t=0;for(const c of 'FAM-OK-'+l)t+=c.charCodeAt(0);return String((t*7)%97).padStart(2,'0')};
+const okAll=ids=>ids.every(i=>st[i]&&st[i].ok);
+function codes(){const lg=L(),out=[];
+ const mk=(l,ids,en,es)=>{if(okAll(ids)){const c='FAM-OK-'+l+'-'+sum(l);out.push('<div style="margin-top:10px"><p class="ok"><b>'+(lg==='es'?es:en)+'</b></p><code style="display:block;font-size:20px;padding:8px 0">'+c+'</code><button class="s" data-copy="'+c+'">'+(lg==='es'?'Copiar código':'Copy code')+'</button></div>')}};
+ mk('A',['s1','s2','s3'],'Steps 1 to 3 passed. Copy this code and paste it in the app (Settings, Test the shortcut):','Pasos 1 a 3 superados. Copia este código y pégalo en la app (Ajustes, Probar el atajo):');
+ mk('B',['s4','s5'],'Steps 4 and 5 passed. Copy this code and paste it in the app (Settings, Test reading a real paper):','Pasos 4 y 5 superados. Copia este código y pégalo en la app (Ajustes, Probar la lectura):');
+ return out.join('')}
+function wireCopy(){box.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);b.textContent=L()==='es'?'Copiado':'Copied'}catch(e){b.textContent=b.dataset.copy}})}
 const idx=id=>STEPS.findIndex(s=>s.id===id);
 const firstOpen=()=>{const i=STEPS.findIndex(s=>!(st[s.id]&&(st[s.id].ok||st[s.id].skip)));return i<0?STEPS.length:i};
 
@@ -68,8 +76,8 @@ if(/^w-s\d$/.test(ret)){
 if(cur==null){if(!q.get('wiz')&&firstOpen()>=STEPS.length&&!q.get('setup')){renderDone();return}cur=q.get('step')?+q.get('step'):firstOpen();if(cur>=STEPS.length)cur=STEPS.length-1}
 render(cur);
 
-function renderDone(){const w=W[L()];box.className='c';box.innerHTML='<p class="ok" style="margin:0">✓ '+esc(w.done)+'</p><button class="s" id="wiz-redo">'+esc(w.redo)+'</button>';
- document.getElementById('wiz-redo').onclick=()=>{st={};S.set('wiz',st);location.href=self+'?wiz=1'}}
+function renderDone(){const w=W[L()];box.className='c';box.innerHTML='<p class="ok" style="margin:0">✓ '+esc(w.done)+'</p>'+codes()+'<button class="s" id="wiz-redo">'+esc(w.redo)+'</button>';
+ wireCopy();document.getElementById('wiz-redo').onclick=()=>{st={};S.set('wiz',st);location.href=self+'?wiz=1'}}
 function render(i){const w=W[L()],s=STEPS[i],r=st[s.id],lg=L();
  const dots=STEPS.map((x,j)=>'<span style="display:inline-block;width:26px;height:6px;border-radius:3px;margin-right:4px;background:'+(st[x.id]&&st[x.id].ok?'var(--ok)':st[x.id]&&st[x.id].skip?'var(--warn)':j===i?'var(--acc)':'var(--line)')+'"></span>').join('');
  let html='<div class="m" style="margin-bottom:6px">'+dots+'</div><p class="m">'+w.step+' '+(i+1)+' '+w.of+' '+STEPS.length+'</p><h2>'+esc(s.t[lg])+'</h2><p>'+esc(s.d[lg])+'</p>';
@@ -81,7 +89,7 @@ function render(i){const w=W[L()],s=STEPS[i],r=st[s.id],lg=L();
   html+='<a class="b" id="wiz-go" href="#">'+esc(label)+'</a>'}
  if(!(r&&r.ok)||!s.local)html+='<button class="s" id="wiz-skip">'+esc(w.skip)+'</button>';
  if(i>0)html+='<button class="s" id="wiz-back">'+esc(w.back)+'</button>';
- box.className='c';box.innerHTML=html;
+ html+=codes();box.className='c';box.innerHTML=html;wireCopy();
  const go=document.getElementById('wiz-go');
  if(go){go.onclick=e=>{e.preventDefault();let url;
    if(s.chain){const add=JSON.stringify({t:'add',id:'selftest',d:today,s:'Setup test',k:'bill',a:0,due:null}),done=JSON.stringify({t:'done',id:'selftest',d:today});url=chain(['log:'+add,'log:'+done,'papers:read'],'w-s5')}
