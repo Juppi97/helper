@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='3.1';
+window.WIZ_V='3.2';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -16,8 +16,9 @@ const testBill=()=>{const d=new Date(Date.now()+20*864e5);return 'TESTDOKUMENT F
 const IMP=(f,n)=>'shortcuts://import-shortcut?url='+encodeURIComponent('https://juppi97.github.io/helper/shortcuts/'+f)+'&name='+encodeURIComponent(n);
 const SHORTCUTS=IMP(lg==='es'?'es/Family.shortcut':'Family.shortcut','Family'),SHORTCUTS_SETUP=IMP('Family-Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=31&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=31&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=31&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=31&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=31&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=31&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=32&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=32&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=32&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=32&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=32&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=32&r='+tag+'&error=1')}return next}
+if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
 
@@ -32,7 +33,9 @@ const STEPS=[
  {id:'test',t:T('Self-test','Autoprueba'),title:T('Test saving, reading and the due list','Probar guardar, leer y la lista de pendientes'),
   say:T('Tap the button. It saves a made-up bill, reads it back and tests the due list. Takes about ten seconds.','Toca el botón. Guarda una factura inventada, la lee y prueba la lista de pendientes. Tarda unos diez segundos.'),btn:T('Run the self-test','Hacer la autoprueba')},
  {id:'share',t:T('Share a paper','Compartir un papel'),title:T('Share a paper to the phone (optional)','Compartir un papel al móvil (opcional)'),
-  say:T('Tap Share a sample bill, choose Family Share in the sheet, wait for its banner, come back and tap Check. Or paste text below.','Toca Compartir factura de ejemplo, elige Family Share, espera su aviso, vuelve y toca Comprobar. O pega texto abajo.'),btn:T('Check','Comprobar'),share:true}
+  say:T('Tap Share a sample bill, choose Family Share in the sheet, wait for its banner, come back and tap Check. Or paste text below.','Toca Compartir factura de ejemplo, elige Family Share, espera su aviso, vuelve y toca Comprobar. O pega texto abajo.'),btn:T('Check','Comprobar'),share:true},
+ {id:'push',t:T('Phone alerts','Avisos'),title:T('Get alerts on this phone (optional)','Recibir avisos en este móvil (opcional)'),
+  say:T('Tap Subscribe in ntfy. The ntfy app opens with your topic ready: tap Subscribe there and allow notifications. Then tap Send a test alert.','Toca Suscribirse en ntfy. Se abre la app ntfy con tu tema listo: toca Suscribir y permite notificaciones. Luego toca Enviar aviso de prueba.'),btn:T('Subscribe in ntfy','Suscribirse en ntfy'),push:true}
 ];
 const idx=id=>STEPS.findIndex(s=>s.id===id);
 function firstOpen(){const i=STEPS.findIndex(s=>!(st[s.id]&&st[s.id].s));return i<0?STEPS.length:i}
@@ -59,6 +62,7 @@ if(m){history.replaceState(null,'',self+'?wiz=1');const kind=m[1],res=(q.get('re
  if(kind==='sc'){const d=res.match(/FAM-v2-DIAG-log(\d+)-latest(\d+)-test(\d+)-keep(\d+)-cal(\d+)-rem(\d+)-notes(\d+)-old(\d+)/);
   if(q.get('error'))fail('sc','notinstalled');else if(q.get('cancel'))fail('sc','cancel');else if(!d)fail('sc','old');
   else{const n=d.slice(1).map(Number);const calOk=n[4]>0||n[7]>0,allThree=calOk&&n[5]>0&&n[6]>0;
+   S.set('flags',Object.assign(flagsNow(),n[4]>0||n[7]>0?{nocal:true}:{},n[5]>0?{norem:true}:{},n[6]>0?{nonotes:true}:{}));
    if(allThree){st.setup={s:'pre',at:Date.now()}}
    pass('sc','pre',T('Found the Family shortcut'+(allThree?', your calendar, list and folders. They are already set up.':'.'),'Encontré el atajo Family'+(allThree?', tu calendario, lista y carpetas. Ya están configurados.':'.')));
    let n2=idx('sc')+1;while(n2<STEPS.length&&st[STEPS[n2].id]&&st[STEPS[n2].id].s==='pre')n2++;cur=n2}}
@@ -97,18 +101,22 @@ function render(){
  if(diag&&s.id==='test')h+='<p class="m"><b>'+esc(diag)+'</b></p>';
  const failed=msg&&msg.id===s.id&&!msg.ok;
  if(s.flags){const f=flagsNow();h+=[['nocal',T('A calendar named Family already exists','Ya existe un calendario llamado Family')],['norem',T('A Reminders list named Family already exists','Ya existe una lista de Recordatorios llamada Family')],['nonotes',T('A Notes folder named Family already exists','Ya existe una carpeta de Notas llamada Family')]].map(x=>'<button class="s" data-flag="'+x[0]+'" style="text-align:left">'+(f[x[0]]?'☑':'☐')+' '+esc(x[1])+'</button>').join('')}
- h+='<a class="b" id="go" href="#">'+esc(failed&&!s.share?T('Try again','Reintentar'):s.btn)+'</a>';
- if(s.share){h+='<button class="s" id="sharebtn">'+T('Share a sample bill','Compartir factura de ejemplo')+'</button><textarea id="sample" readonly style="display:none;margin-top:8px"></textarea><p class="m" style="margin-top:12px"><b>'+T('No share sheet? Paste text of a bill or letter:','¿Sin menú compartir? Pega el texto de una factura o carta:')+'</b></p><textarea id="paste"></textarea><button class="s" id="pasteok">'+T('Use pasted text','Usar el texto pegado')+'</button><p class="m" id="pasteout"></p>'}
+ const tp=S.get('topic','');if(s.push&&!tp){h+='<p class="no">'+T('Open this step from the family app (Settings, Phone alerts) so it knows your topic.','Abre este paso desde la app familiar (Ajustes, Avisos) para que conozca tu tema.')+'</p>'}
+ if(s.push&&tp)h+='<a class="b" href="ntfy://ntfy.sh/'+encodeURIComponent(tp)+'">'+T('Subscribe in ntfy','Suscribirse en ntfy')+'</a><a class="b s" href="https://apps.apple.com/app/ntfy/id1625396347" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install ntfy (only if you do not have it)','Instalar ntfy (solo si no la tienes)')+'</a><a class="b s" href="https://ntfy.sh/'+encodeURIComponent(tp)+'/publish?title=Family&message=Setup+test+alert" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Send a test alert','Enviar aviso de prueba')+'</a><button class="s" id="pushdone">'+T('The alert arrived','El aviso llegó')+'</button>'
+ if(!s.push)h+='<a class="b" id="go" href="#">'+esc(failed&&!s.share?T('Try again','Reintentar'):s.btn)+'</a>';
+ if(s.share){h+='<button class="s" id="sharebtn">'+T('Share a sample bill','Compartir factura de ejemplo')+'</button><textarea id="sample" readonly style="display:none;margin-top:8px"></textarea><p class="m" style="margin-top:12px"><b>'+T('Fallback only, if the share sheet does not work: paste text of a bill or letter:','¿Sin menú compartir? Pega el texto de una factura o carta:')+'</b></p><textarea id="paste"></textarea><button class="s" id="pasteok">'+T('Use pasted text','Usar el texto pegado')+'</button><p class="m" id="pasteout"></p>'}
  if(failed||diag){if(s.id==='test'||s.id==='setup'){if(s.id==='test')h+='<a class="b s" id="diagbtn" href="#" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Find out why','Averiguar por qué')+'</a>';h+='<a class="b s" href="'+self+'?run=setup&flags=nocal%2Cnorem%2Cnonotes" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Create the folders','Crear las carpetas')+'</a>'}}
  if(failed&&(msg.text===FIXES.notinstalled||msg.text===FIXES.old))h+='<a class="b s" href="'+SHORTCUTS+'" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install Family','Instalar Family')+'</a>';
  if(failed&&msg.text===FIXES.setupmissing)h+='<a class="b s" href="'+SHORTCUTS_SETUP+'" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install Family Setup','Instalar Family Setup')+'</a>';
+ if(s.id==='share')h+='<a class="m" href="'+IMP('Family-Share.shortcut','Family Share')+'" style="display:block;margin-top:10px">'+T('Install Family Share (only if you do not have it)','Instalar Family Share (solo si no lo tienes)')+'</a>';
  if(s.id==='sc'&&!failed)h+='<a class="m" href="'+SHORTCUTS+'" style="display:block;margin-top:10px">'+T('Not installed yet? Install Family (only if you do not have it)','¿Aún no está instalado? Instalar Family (solo si no lo tienes)')+'</a>';
  if(s.id==='setup'&&!failed)h+='<a class="m" href="'+SHORTCUTS_SETUP+'" style="display:block;margin-top:10px">'+T('Install Family Setup (only if you do not have it)','Instalar Family Setup (solo si no lo tienes)')+'</a>';
  h+='<div style="display:flex;gap:8px;margin-top:10px">'+(i>0?'<button class="s" id="back">'+T('Back','Atrás')+'</button>':'')+'<button class="s" id="skip">'+T('Skip','Saltar')+'</button></div>';
  h+='<a class="m" href="'+self+'?daily=1" style="display:block;margin-top:10px;text-align:center">'+T('Skip setup, go to daily use','Saltar la configuración, ir al uso diario')+'</a>';
  box.className='c';box.innerHTML=h;
+ const pd=document.getElementById('pushdone');if(pd)pd.onclick=()=>{st.push={s:'ok',at:Date.now()};save();location.href=self+'?wiz=1&step='+STEPS.length};
  const go=document.getElementById('go');
- go.onclick=e=>{e.preventDefault();
+ if(go)go.onclick=e=>{e.preventDefault();
   if(s.id==='sc')location.href=cbUrl('Family','cb:diag:','p-sc');
   else if(s.id==='setup'){const w=flagWords();location.href=cbUrl('Family Setup',(w?w+' ':'')+'cb','p-setup')}
   else if(s.id==='test'){const add=JSON.stringify({t:'add',id:'selftest',d:today,s:'Setup test',k:'bill',a:0,due:null}),dn=JSON.stringify({t:'done',id:'selftest',d:today});location.href=chain(['file:'+testBill(),'ensure:','log:'+add,'log:'+dn,'papers:read'],'p-test')}
