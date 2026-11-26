@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Papers Companion</title>
 <style>
 :root{--bg:#f6f5f2;--fg:#1d1d1f;--card:#fff;--mut:#6b6b70;--ok:#1a7f37;--no:#b42318;--warn:#9a6700;--acc:#2f5bd3;--line:#e5e3de}
@@ -18,6 +18,7 @@ textarea{width:100%;box-sizing:border-box;min-height:120px;font:15px ui-monospac
 <h1 data-t="title">Papers on this phone</h1>
 <p class="m" data-t="sub">Bills and letters are read here and stay on this phone. Nothing is uploaded.</p>
 <div id="wiz" class="c"></div>
+<div id="daily">
 <div class="c" id="today"></div>
 <div class="c"><h2 data-t="scanH">A paper arrived</h2>
 <p class="m" data-t="scanP">Share the PDF, photo or email to Family (share sheet), then tap.</p>
@@ -26,10 +27,14 @@ textarea{width:100%;box-sizing:border-box;min-height:120px;font:15px ui-monospac
 <div id="result"></div>
 <div class="c"><h2 data-t="dueH">Due list (this phone only)</h2><div id="due"></div></div>
 <div class="c"><h2 data-t="manH">No shortcut? Paste the text</h2><textarea id="paste"></textarea><button class="s" id="parseBtn" data-t="manB">Read pasted text</button></div>
+</div>
 <div class="c">
 <a class="b s" href="https://claude.ai/artifact/7GeHGrqt1o3rGeVn6oEZ2G" target="_blank" style="background:transparent;color:var(--acc);border:1px solid var(--line)" data-t="app">Open the family app</a>
 <p class="m" id="ver"></p></div>
-<script src="scan.js?v=20"></script><script src="nocheck.js?v=20"></script><script src="papers.js?v=20"></script><script src="wizard.js?v=22"></script>
+<script>window.BUILD='2.3';
+/* self-heal: if this page is a cached old copy, reload once with a fresh URL */
+fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{if(j.v!==window.BUILD){var k='hhc.heal';try{if(sessionStorage.getItem(k)===j.v)return;sessionStorage.setItem(k,j.v)}catch(e){}location.replace(location.pathname+'?cb='+j.v+'-'+Date.now()+location.search.replace(/^\?/,'&'))}}).catch(function(){});</script>
+<script src="scan.js?v=23"></script><script src="nocheck.js?v=23"></script><script src="papers.js?v=23"></script><script src="wizard.js?v=23"></script>
 <script>
 const T={en:{title:'Papers on this phone',sub:'Bills and letters are read here and stay on this phone. Nothing is uploaded.',scanH:'A paper arrived',scanP:'Share the PDF, photo or email to Family (share sheet), then tap.',scanB:'Read the newest paper',unpaidB:'Read everything in Unpaid',dueH:'Due list (this phone only)',manH:'No shortcut? Paste the text',manB:'Read pasted text',setH:'Set up once',setP0:'Open this page in Safari (not inside another app). Tap a button, tap Download, then the blue arrow (Downloads), tap the file and Add Shortcut.',app:'Open the family app',
  bill:'Bill',letter:'Letter',from:'From',amount:'Amount',due:'Due',paid:'Already paid',kidOk:'KID number checks out',kidBad:'KID number looks wrong: check before paying',accOk:'Account number checks out',accBad:'Account number looks wrong: check before paying',dl:'Deadlines',cal:'Add to calendar',save:'Add to due list',saved:'Added',claim:'Copy text for NAV',copied:'Copied',none:'Nothing due. Nice.',overdue:'overdue',days:'days',markPaid:'Paid',total:'Total due',back:'Came back from the shortcut',err:'The shortcut ran, but there is no paper waiting. Nothing has been shared to Family yet, or the share did not finish.',errFix:'Open the guided check (step 4)',calDone:'Added to your calendar',track:'Track this bill (list, note, calendar)',tracked:'Tracked: saved to your papers file, note and calendar',logged:'Saved to your papers file',sync:'Load from my papers file',exp:'Copy my papers file (backup)',synced:'Loaded N new entries from your papers file',markDone:'Done',pay:'Pay',billDue:'Bill due (Family)',dlIn:'Deadline:',fromLetter:'From a letter (Family)',orig:'Original line',noNew:'The newest paper has no readable text yet. Share a bill or letter to Family, then tap again.'},
@@ -39,10 +44,10 @@ const S={get(k,d){try{const v=localStorage.getItem('hhc.'+k);return v==null?d:JS
 let lang=S.get('lang',(navigator.language||'en').startsWith('es')?'es':'en');const t=k=>T[lang][k]||k;
 const today=new Date().toISOString().slice(0,10),self=location.origin+location.pathname,$=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function chain(modes,tag){let next=self+'?v=20&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-error='+encodeURIComponent(self+'?v=20&r=error')+'&x-cancel='+encodeURIComponent(self+'?v=20&r=cancel')}return next}
+function chain(modes,tag){let next=self+'?v=23&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-error='+encodeURIComponent(self+'?v=23&r=error')+'&x-cancel='+encodeURIComponent(self+'?v=23&r=cancel')}return next}
 function journal(o){return 'note:mine:- '+today+' '+(o.s||t(o.k))+(o.a!=null?' kr '+HHS.fmtAmt(o.a):'')+(o.due?' '+t('due').toLowerCase()+' '+o.due:'')}
 function cb(mode,tag){return 'shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+mode)
- +'&x-success='+encodeURIComponent(self+'?v=20&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=20&r=cancel')+'&x-error='+encodeURIComponent(self+'?v=20&r=error')}
+ +'&x-success='+encodeURIComponent(self+'?v=23&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=23&r=cancel')+'&x-error='+encodeURIComponent(self+'?v=23&r=error')}
 function paint(){document.documentElement.lang=lang;$('lang').textContent=lang==='en'?'ES':'EN';document.querySelectorAll('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
  $('scanInbox').href=cb('scan:inbox','scan');$('scanUnpaid').href=cb('scan:unpaid','scan');renderDue();renderToday()}
 // KID / account check on the raw text, never stored
@@ -84,6 +89,6 @@ if(r&&!r.startsWith('chk-')&&!/^w-s\d$/.test(r)){const res=q.get('result')||'';h
  else{$('result').innerHTML='<div class="c warn">'+esc(t('err'))+'</div>'}}
 $('parseBtn').onclick=()=>{const v=$('paste').value;$('paste').value='';showDocs(v)};
 $('lang').onclick=()=>{lang=lang==='en'?'es':'en';S.set('lang',lang);paint()};
-$('ver').textContent='v2.0 · '+(matchMedia('(display-mode: standalone)').matches?'home screen':'Safari');
+$('ver').textContent='page v'+window.BUILD+' · wizard v'+(window.WIZ_V||'MISSING')+' · '+(matchMedia('(display-mode: standalone)').matches?'home screen':'Safari');
 paint();
 </script></body></html>

@@ -3,7 +3,9 @@
    Steps: 1 shortcut installed, 2 test bill saved, 3 test bill read back, 4 share handoff (newest paper),
    5 due list round trip (papers file), 6 backup copy. */
 (function(){
+window.WIZ_V='2.3';
 const box=document.getElementById('wiz');if(!box)return;
+const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
 const S={get(k,d){try{const v=localStorage.getItem('hhc.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('hhc.'+k,JSON.stringify(v))}catch(e){}}};
 const L=()=>(S.get('lang','en')==='es'?'es':'en');
@@ -58,9 +60,9 @@ const W={en:{step:'Step',of:'of',go:'Run this step',again:'Try again',skip:'Skip
          es:{step:'Paso',of:'de',go:'Hacer este paso',again:'Reintentar',skip:'Saltar este paso',ok:'Superado',done:'Configuración completa. Todo lo de abajo funciona en este móvil.',redo:'Repetir la comprobación',copy:'Copiar mi archivo de papeles',copied:'Copiado. Pégalo en Notas para guardarlo.',copyFail:'No se pudo copiar. Mantén pulsado en una nota y pega.',list:'Todos los pasos',back:'Atrás',s4b:'Leer el papel más nuevo',title:'Configurar este móvil',shareB:'Compartir factura de ejemplo',check:'Comprobar'}};
 
 const cbUrl=(mode,tag)=>'shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+mode)
- +'&x-success='+encodeURIComponent(self+'?v=20&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=20&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=20&r='+tag+'&error=1');
+ +'&x-success='+encodeURIComponent(self+'?v=23&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=23&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=23&r='+tag+'&error=1');
 // chain several runs: each success link launches the next
-function chain(modes,tag){let next=self+'?v=20&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=20&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=20&r='+tag+'&error=1')}return next}
+function chain(modes,tag){let next=self+'?v=23&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=23&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=23&r='+tag+'&error=1')}return next}
 
 let st=S.get('wiz',{});
 const sum=l=>{let t=0;for(const c of 'FAM-OK-'+l)t+=c.charCodeAt(0);return String((t*7)%97).padStart(2,'0')};
@@ -86,13 +88,15 @@ if(/^w-s\d$/.test(ret)){
   if(id==='s5'&&!fix&&window.HHL)HHL.merge(res);
   msg={id,ok:!fix,fix:fix||null,n:res.length};cur=fix?idx(id):firstOpen()}}
 if(cur==null){if(!q.get('wiz')&&firstOpen()>=STEPS.length&&!q.get('setup')){renderDone();return}cur=q.get('step')?+q.get('step'):firstOpen();if(cur>=STEPS.length)cur=STEPS.length-1}
+const finished=firstOpen()>=STEPS.length;
+if(daily){const showDaily=finished||!!q.get('daily')||ret==='scan'||(!/^w-s\d$/.test(ret)&&ret!==''&&ret!=='chk');daily.hidden=!showDaily}
 render(cur);
 
 function renderDone(){const w=W[L()];box.className='c';box.innerHTML='<p class="ok" style="margin:0">✓ '+esc(w.done)+'</p>'+codes()+'<button class="s" id="wiz-redo">'+esc(w.redo)+'</button>';
  wireCopy();document.getElementById('wiz-redo').onclick=()=>{st={};S.set('wiz',st);location.href=self+'?wiz=1'}}
 function render(i){const w=W[L()],s=STEPS[i],r=st[s.id],lg=L();
  const dots=STEPS.map((x,j)=>'<span style="display:inline-block;width:26px;height:6px;border-radius:3px;margin-right:4px;background:'+(st[x.id]&&st[x.id].ok?'var(--ok)':st[x.id]&&st[x.id].skip?'var(--warn)':j===i?'var(--acc)':'var(--line)')+'"></span>').join('');
- let html='<div class="m" style="margin-bottom:6px">'+dots+'</div><p class="m">'+w.step+' '+(i+1)+' '+w.of+' '+STEPS.length+'</p><h2>'+esc(s.t[lg])+'</h2><p>'+esc(s.d[lg])+'</p>';
+ let html='<div class="m" style="margin-bottom:6px"><span style="float:right;font-size:12px">v'+window.WIZ_V+'</span>'+dots+'</div><p class="m">'+w.step+' '+(i+1)+' '+w.of+' '+STEPS.length+(r&&r.skip?' · '+(lg==='es'?'Saltado':'Skipped'):(r&&r.ok?' · ✓':''))+'</p><h2>'+esc(s.t[lg])+'</h2><p>'+esc(s.d[lg])+'</p>';
  if(msg&&msg.id===s.id)html+=msg.ok?'<p class="ok"><b>✓ '+w.ok+'</b></p>':'<p class="no"><b>✗</b> '+esc(FIX[msg.fix][lg])+'</p>';
  else if(r&&!r.ok&&!r.skip&&r.fix)html+='<p class="no"><b>✗</b> '+esc(FIX[r.fix][lg])+'</p>';
  const failed=r&&!r.ok&&!r.skip;
@@ -103,7 +107,7 @@ function render(i){const w=W[L()],s=STEPS[i],r=st[s.id],lg=L();
   if(s.share&&failed&&(r.fix==='empty4')){html+='<div style="margin-top:8px">'+DIAG.map((d,j)=>'<button class="s" data-diag="'+j+'">'+esc(d.q[lg])+'</button>'+(diagOpen===j?'<p class="m" style="margin:4px 0 8px">'+esc(d.a[lg])+'</p>':'')).join('')+'</div>'}}
  if(!(r&&r.ok)||!s.local)html+='<button class="s" id="wiz-skip">'+esc(w.skip)+'</button>';
  if(i>0)html+='<button class="s" id="wiz-back">'+esc(w.back)+'</button>';
- html+=codes(s.id);box.className='c';box.innerHTML=html;wireCopy();
+ html+='<a class="b s" href="'+self+'?daily=1" style="background:transparent;color:var(--mut);border:0;font-weight:400;font-size:14px">'+(lg==='es'?'Saltar la configuración, ir al uso diario':'Skip setup, go to daily use')+'</a>';html+=codes(s.id);box.className='c';box.innerHTML=html;wireCopy();
  const go=document.getElementById('wiz-go');
  box.querySelectorAll('[data-diag]').forEach(b=>b.onclick=()=>{diagOpen=+b.dataset.diag;render(i)});
  const sh=document.getElementById('wiz-share');
