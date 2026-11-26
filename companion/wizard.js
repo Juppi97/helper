@@ -3,7 +3,7 @@
    Steps: 1 shortcut installed, 2 test bill saved, 3 test bill read back, 4 share handoff (newest paper),
    5 due list round trip (papers file), 6 backup copy. */
 (function(){
-window.WIZ_V='2.3';
+window.WIZ_V='2.4';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -60,9 +60,9 @@ const W={en:{step:'Step',of:'of',go:'Run this step',again:'Try again',skip:'Skip
          es:{step:'Paso',of:'de',go:'Hacer este paso',again:'Reintentar',skip:'Saltar este paso',ok:'Superado',done:'Configuración completa. Todo lo de abajo funciona en este móvil.',redo:'Repetir la comprobación',copy:'Copiar mi archivo de papeles',copied:'Copiado. Pégalo en Notas para guardarlo.',copyFail:'No se pudo copiar. Mantén pulsado en una nota y pega.',list:'Todos los pasos',back:'Atrás',s4b:'Leer el papel más nuevo',title:'Configurar este móvil',shareB:'Compartir factura de ejemplo',check:'Comprobar'}};
 
 const cbUrl=(mode,tag)=>'shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+mode)
- +'&x-success='+encodeURIComponent(self+'?v=23&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=23&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=23&r='+tag+'&error=1');
+ +'&x-success='+encodeURIComponent(self+'?v=24&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=24&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=24&r='+tag+'&error=1');
 // chain several runs: each success link launches the next
-function chain(modes,tag){let next=self+'?v=23&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=23&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=23&r='+tag+'&error=1')}return next}
+function chain(modes,tag){let next=self+'?v=24&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=24&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=24&r='+tag+'&error=1')}return next}
 
 let st=S.get('wiz',{});
 const sum=l=>{let t=0;for(const c of 'FAM-OK-'+l)t+=c.charCodeAt(0);return String((t*7)%97).padStart(2,'0')};
@@ -86,8 +86,8 @@ if(/^w-s\d$/.test(ret)){
  if(s){let fix=q.get('cancel')?'cancel':(q.get('error')?'none':s.judge(res));if(fix==='empty'&&FIX['empty'+id.slice(1)])fix='empty'+id.slice(1);
   st[id]={ok:!fix,fix:fix||null,n:res.length,at:Date.now()};S.set('wiz',st);
   if(id==='s5'&&!fix&&window.HHL)HHL.merge(res);
-  msg={id,ok:!fix,fix:fix||null,n:res.length};cur=fix?idx(id):firstOpen()}}
-if(cur==null){if(!q.get('wiz')&&firstOpen()>=STEPS.length&&!q.get('setup')){renderDone();return}cur=q.get('step')?+q.get('step'):firstOpen();if(cur>=STEPS.length)cur=STEPS.length-1}
+  msg={id,ok:!fix,fix:fix||null,n:res.length};const nx=idx(id)+1;cur=fix?idx(id):(nx<STEPS.length?nx:(firstOpen()>=STEPS.length?null:idx(id)))}}
+if(cur==null){if(firstOpen()>=STEPS.length&&!q.get('step')&&!q.get('redo')){renderDone();return}cur=q.get('step')!=null?+q.get('step'):firstOpen();if(!(cur>=0))cur=0;if(cur>=STEPS.length)cur=STEPS.length-1}
 const finished=firstOpen()>=STEPS.length;
 if(daily){const showDaily=finished||!!q.get('daily')||ret==='scan'||(!/^w-s\d$/.test(ret)&&ret!==''&&ret!=='chk');daily.hidden=!showDaily}
 render(cur);
@@ -118,7 +118,7 @@ function render(i){const w=W[L()],s=STEPS[i],r=st[s.id],lg=L();
    location.href=url}}
  const cp=document.getElementById('wiz-copy');
  if(cp)cp.onclick=async()=>{const out=document.getElementById('wiz-copyr');try{await navigator.clipboard.writeText(window.HHL?HHL.exportText():'');st.s6={ok:true,at:Date.now()};S.set('wiz',st);out.textContent=w.copied;out.className='ok';setTimeout(()=>location.href=self+'?wiz=1',1200)}catch(e){out.textContent=w.copyFail;out.className='no'}};
- const sk=document.getElementById('wiz-skip');if(sk)sk.onclick=()=>{clearFails();st[s.id]=r&&r.ok?r:{skip:true,at:Date.now()};S.set('wiz',st);location.href=self+'?wiz=1'};
+ const sk=document.getElementById('wiz-skip');if(sk)sk.onclick=()=>{clearFails();st[s.id]=r&&r.ok?r:{skip:true,at:Date.now()};S.set('wiz',st);location.href=self+'?wiz=1'+(i+1<STEPS.length?'&step='+(i+1):'')};
  const bk=document.getElementById('wiz-back');if(bk)bk.onclick=()=>{clearFails();diagOpen=-1;location.href=self+'?wiz=1&step='+(i-1)};
 }
 })();
