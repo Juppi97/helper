@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='3.0';
+window.WIZ_V='3.1';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -13,10 +13,11 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const pad=n=>String(n).padStart(2,'0');
 const today=new Date().toISOString().slice(0,10);
 const testBill=()=>{const d=new Date(Date.now()+20*864e5);return 'TESTDOKUMENT Fjellkraft Strøm AS (fiktiv)\nFaktura\nTotalt å betale: kr 500,00\nForfallsdato: '+pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear()};
-const SHORTCUTS='../shortcuts/';
+const IMP=(f,n)=>'shortcuts://import-shortcut?url='+encodeURIComponent('https://juppi97.github.io/helper/shortcuts/'+f)+'&name='+encodeURIComponent(n);
+const SHORTCUTS=IMP(lg==='es'?'es/Family.shortcut':'Family.shortcut','Family'),SHORTCUTS_SETUP=IMP('Family-Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=30&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=30&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=30&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=30&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=30&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=30&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=31&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=31&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=31&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=31&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=31&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=31&r='+tag+'&error=1')}return next}
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
 
@@ -100,9 +101,9 @@ function render(){
  if(s.share){h+='<button class="s" id="sharebtn">'+T('Share a sample bill','Compartir factura de ejemplo')+'</button><textarea id="sample" readonly style="display:none;margin-top:8px"></textarea><p class="m" style="margin-top:12px"><b>'+T('No share sheet? Paste text of a bill or letter:','¿Sin menú compartir? Pega el texto de una factura o carta:')+'</b></p><textarea id="paste"></textarea><button class="s" id="pasteok">'+T('Use pasted text','Usar el texto pegado')+'</button><p class="m" id="pasteout"></p>'}
  if(failed||diag){if(s.id==='test'||s.id==='setup'){if(s.id==='test')h+='<a class="b s" id="diagbtn" href="#" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Find out why','Averiguar por qué')+'</a>';h+='<a class="b s" href="'+self+'?run=setup&flags=nocal%2Cnorem%2Cnonotes" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Create the folders','Crear las carpetas')+'</a>'}}
  if(failed&&(msg.text===FIXES.notinstalled||msg.text===FIXES.old))h+='<a class="b s" href="'+SHORTCUTS+'" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install Family','Instalar Family')+'</a>';
- if(failed&&msg.text===FIXES.setupmissing)h+='<a class="b s" href="'+SHORTCUTS+'" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install Family Setup','Instalar Family Setup')+'</a>';
+ if(failed&&msg.text===FIXES.setupmissing)h+='<a class="b s" href="'+SHORTCUTS_SETUP+'" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install Family Setup','Instalar Family Setup')+'</a>';
  if(s.id==='sc'&&!failed)h+='<a class="m" href="'+SHORTCUTS+'" style="display:block;margin-top:10px">'+T('Not installed yet? Install Family (only if you do not have it)','¿Aún no está instalado? Instalar Family (solo si no lo tienes)')+'</a>';
- if(s.id==='setup'&&!failed)h+='<a class="m" href="'+SHORTCUTS+'" style="display:block;margin-top:10px">'+T('Install Family Setup (only if you do not have it)','Instalar Family Setup (solo si no lo tienes)')+'</a>';
+ if(s.id==='setup'&&!failed)h+='<a class="m" href="'+SHORTCUTS_SETUP+'" style="display:block;margin-top:10px">'+T('Install Family Setup (only if you do not have it)','Instalar Family Setup (solo si no lo tienes)')+'</a>';
  h+='<div style="display:flex;gap:8px;margin-top:10px">'+(i>0?'<button class="s" id="back">'+T('Back','Atrás')+'</button>':'')+'<button class="s" id="skip">'+T('Skip','Saltar')+'</button></div>';
  h+='<a class="m" href="'+self+'?daily=1" style="display:block;margin-top:10px;text-align:center">'+T('Skip setup, go to daily use','Saltar la configuración, ir al uso diario')+'</a>';
  box.className='c';box.innerHTML=h;
