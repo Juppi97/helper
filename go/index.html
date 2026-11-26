@@ -1,12 +1,11 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache"><title>Installing</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache"><title>Install</title>
 <style>body{font:18px -apple-system,system-ui,sans-serif;margin:0;padding:24px 16px;background:#f6f6f8;color:#111}a.b{display:block;background:#2f5bd3;color:#fff;text-align:center;padding:18px;border-radius:14px;text-decoration:none;font-weight:700;margin:16px 0}p{line-height:1.4}.m{opacity:.65;font-size:14px}</style></head><body>
-<h2 id="t">Opening Shortcuts…</h2><p id="p">If nothing happens in 2 seconds, tap the blue button.</p><a class="b" id="a" href="#">Open Shortcuts and add it</a>
-<a class="b" id="b" href="#" style="background:#555">Option 2: same, name added</a><a class="b" id="c" href="#" style="background:#555">Option 3: open the file directly</a>
-<p class="m">Then tap <b>Add Shortcut</b>. If iPhone says it is untrusted: Settings &gt; Shortcuts &gt; Allow Untrusted Shortcuts, then tap the blue button again.</p>
+<h2 id="t">Install</h2><a class="b" id="a" href="#" download>Install</a>
+<p>Tap the blue button, then <b>Download</b>, then tap the downloaded file and <b>Add Shortcut</b>. Same steps for every shortcut.</p>
+<p class="m">Untrusted warning? Settings &gt; Shortcuts &gt; Allow Untrusted Shortcuts, then tap the blue button again.</p>
 <script>
-var q=new URLSearchParams(location.search),B='https://juppi97.github.io/helper/shortcuts/';
-var ok=/^[\w\/.-]+\.shortcut$/.test(q.get('f')||''),f=q.get('f'),n=(q.get('n')||'Family').slice(0,40);
-var file=B+f,u=ok?file:'';
-if(!ok){document.getElementById('t').textContent='Unknown shortcut';['a','b','c'].forEach(function(i){document.getElementById(i).style.display='none'})}
-else{document.getElementById('a').href=u;document.getElementById('b').href='shortcuts://import-shortcut?url='+encodeURIComponent(file)+'&name='+encodeURIComponent(n);document.getElementById('c').href=file;document.getElementById('t').textContent='Add "'+n+'"';setTimeout(function(){location.href=u},300)}
+var q=new URLSearchParams(location.search),f=q.get('f')||'',n=(q.get('n')||'Family').slice(0,40);
+var a=document.getElementById('a');
+if(!/^[\w\/.-]+\.shortcut$/.test(f)){document.getElementById('t').textContent='Unknown shortcut';a.style.display='none'}
+else{a.href='../shortcuts/'+f;a.textContent='Install '+n;document.getElementById('t').textContent='Install '+n}
 </script></body></html>
