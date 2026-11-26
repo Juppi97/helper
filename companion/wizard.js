@@ -65,10 +65,11 @@ function chain(modes,tag){let next=self+'?v=20&r='+tag;for(let i=modes.length-1;
 let st=S.get('wiz',{});
 const sum=l=>{let t=0;for(const c of 'FAM-OK-'+l)t+=c.charCodeAt(0);return String((t*7)%97).padStart(2,'0')};
 const okAll=ids=>ids.every(i=>st[i]&&st[i].ok);
-function codes(){const lg=L(),out=[];
- const mk=(l,ids,en,es)=>{if(okAll(ids)){const c='FAM-OK-'+l+'-'+sum(l);out.push('<div style="margin-top:10px"><p class="ok"><b>'+(lg==='es'?es:en)+'</b></p><code style="display:block;font-size:20px;padding:8px 0">'+c+'</code><button class="s" data-copy="'+c+'">'+(lg==='es'?'Copiar código':'Copy code')+'</button></div>')}};
- mk('A',['s1','s2','s3'],'Steps 1 to 3 passed. Copy this code and paste it in the app (Settings, Test the shortcut):','Pasos 1 a 3 superados. Copia este código y pégalo en la app (Ajustes, Probar el atajo):');
- mk('B',['s4','s5'],'Steps 4 and 5 passed. Copy this code and paste it in the app (Settings, Test reading a real paper):','Pasos 4 y 5 superados. Copia este código y pégalo en la app (Ajustes, Probar la lectura):');
+function clearFails(){let ch=false;for(const k of Object.keys(st))if(!st[k].ok&&!st[k].skip){delete st[k];ch=true}if(ch)S.set('wiz',st)}
+function codes(only){const lg=L(),out=[];
+ const mk=(l,ids,en,es,at)=>{if(okAll(ids)&&(!only||only===at)){const c='FAM-OK-'+l+'-'+sum(l);out.push('<div style="margin-top:10px"><p class="ok"><b>'+(lg==='es'?es:en)+'</b></p><code style="display:block;font-size:20px;padding:8px 0">'+c+'</code><button class="s" data-copy="'+c+'">'+(lg==='es'?'Copiar código':'Copy code')+'</button></div>')}};
+ mk('A',['s1','s2','s3'],'Steps 1 to 3 passed. Copy this code and paste it in the app (Settings, Test the shortcut):','Pasos 1 a 3 superados. Copia este código y pégalo en la app (Ajustes, Probar el atajo):','s3');
+ mk('B',['s4','s5'],'Steps 4 and 5 passed. Copy this code and paste it in the app (Settings, Test reading a real paper):','Pasos 4 y 5 superados. Copia este código y pégalo en la app (Ajustes, Probar la lectura):','s5');
  return out.join('')}
 function wireCopy(){box.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);b.textContent=L()==='es'?'Copiado':'Copied'}catch(e){b.textContent=b.dataset.copy}})}
 const idx=id=>STEPS.findIndex(s=>s.id===id);
@@ -76,6 +77,7 @@ const firstOpen=()=>{const i=STEPS.findIndex(s=>!(st[s.id]&&(st[s.id].ok||st[s.i
 
 // handle a return from the shortcut
 const ret=q.get('r')||'';
+if(!/^w-s\d$/.test(ret))clearFails();
 let msg=null,cur=null;
 if(/^w-s\d$/.test(ret)){
  const id=ret.slice(2),s=STEPS[idx(id)],res=q.get('result')||'';history.replaceState(null,'',self+'?wiz=1');
@@ -101,7 +103,7 @@ function render(i){const w=W[L()],s=STEPS[i],r=st[s.id],lg=L();
   if(s.share&&failed&&(r.fix==='empty4')){html+='<div style="margin-top:8px">'+DIAG.map((d,j)=>'<button class="s" data-diag="'+j+'">'+esc(d.q[lg])+'</button>'+(diagOpen===j?'<p class="m" style="margin:4px 0 8px">'+esc(d.a[lg])+'</p>':'')).join('')+'</div>'}}
  if(!(r&&r.ok)||!s.local)html+='<button class="s" id="wiz-skip">'+esc(w.skip)+'</button>';
  if(i>0)html+='<button class="s" id="wiz-back">'+esc(w.back)+'</button>';
- html+=codes();box.className='c';box.innerHTML=html;wireCopy();
+ html+=codes(s.id);box.className='c';box.innerHTML=html;wireCopy();
  const go=document.getElementById('wiz-go');
  box.querySelectorAll('[data-diag]').forEach(b=>b.onclick=()=>{diagOpen=+b.dataset.diag;render(i)});
  const sh=document.getElementById('wiz-share');
@@ -112,7 +114,7 @@ function render(i){const w=W[L()],s=STEPS[i],r=st[s.id],lg=L();
    location.href=url}}
  const cp=document.getElementById('wiz-copy');
  if(cp)cp.onclick=async()=>{const out=document.getElementById('wiz-copyr');try{await navigator.clipboard.writeText(window.HHL?HHL.exportText():'');st.s6={ok:true,at:Date.now()};S.set('wiz',st);out.textContent=w.copied;out.className='ok';setTimeout(()=>location.href=self+'?wiz=1',1200)}catch(e){out.textContent=w.copyFail;out.className='no'}};
- const sk=document.getElementById('wiz-skip');if(sk)sk.onclick=()=>{st[s.id]={skip:true,at:Date.now()};S.set('wiz',st);location.href=self+'?wiz=1'};
- const bk=document.getElementById('wiz-back');if(bk)bk.onclick=()=>{location.href=self+'?wiz=1&step='+(i-1)};
+ const sk=document.getElementById('wiz-skip');if(sk)sk.onclick=()=>{clearFails();st[s.id]=r&&r.ok?r:{skip:true,at:Date.now()};S.set('wiz',st);location.href=self+'?wiz=1'};
+ const bk=document.getElementById('wiz-back');if(bk)bk.onclick=()=>{clearFails();diagOpen=-1;location.href=self+'?wiz=1&step='+(i-1)};
 }
 })();
