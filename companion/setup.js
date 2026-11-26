@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='3.2';
+window.WIZ_V='3.3';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -14,10 +14,11 @@ const pad=n=>String(n).padStart(2,'0');
 const today=new Date().toISOString().slice(0,10);
 const testBill=()=>{const d=new Date(Date.now()+20*864e5);return 'TESTDOKUMENT Fjellkraft Strøm AS (fiktiv)\nFaktura\nTotalt å betale: kr 500,00\nForfallsdato: '+pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear()};
 const IMP=(f,n)=>'shortcuts://import-shortcut?url='+encodeURIComponent('https://juppi97.github.io/helper/shortcuts/'+f)+'&name='+encodeURIComponent(n);
+const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family.shortcut':'Family.shortcut','Family'),SHORTCUTS_SETUP=IMP('Family-Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=32&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=32&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=32&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=32&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=32&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=32&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=33&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=33&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=33&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=33&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=33&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=33&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
@@ -84,13 +85,15 @@ if(cur==null){const qs=q.get('step');cur=qs!=null?Math.max(0,Math.min(STEPS.leng
 if(q.get('run')==='setup'){const ok=['nocal','norem','nonotes'];const fl=(q.get('flags')||'').split(',').filter(x=>ok.includes(x));S.set('flags',Object.fromEntries(fl.map(k=>[k,true])));
  location.replace(cbUrl('Family Setup',fl.concat(['cb']).join(' '),'p-setup'));return}
 
+if(q.get('run')==='test'){const add=JSON.stringify({t:'add',id:'selftest',d:today,s:'Setup test',k:'bill',a:0,due:null}),dn=JSON.stringify({t:'done',id:'selftest',d:today});location.replace(chain(['file:'+testBill(),'ensure:','log:'+add,'log:'+dn,'papers:read'],'p-test'));return}
+if(q.get('run')==='share'){location.replace(cbUrl('Family','cb:scan:inbox','p-share'));return}
 render();
 
 function render(){
  const finished=firstOpen()>=STEPS.length&&cur>=STEPS.length;
  if(daily){daily.hidden=!(finished||q.get('daily')||(ret&&!m&&ret!==''))}
  /* progress list */
- let h='<span style="float:right;font-size:12px" class="m">v'+window.WIZ_V+'</span><h2 style="margin-bottom:6px">'+T('Set up this phone','Configurar este móvil')+'</h2>';
+ let h='<a class="b" href="'+APP+'" style="margin-bottom:10px">'+T('← Back to the family app (Settings)','← Volver a la app familiar (Ajustes)')+'</a><span style="float:right;font-size:12px" class="m">v'+window.WIZ_V+'</span><h2 style="margin-bottom:6px">'+T('Set up this phone','Configurar este móvil')+'</h2>';
  h+='<div style="margin:6px 0 12px">'+STEPS.map((s,i)=>{const x=st[s.id];const icon=x&&(x.s==='ok'||x.s==='pre')?'<span class="ok">✓</span>':x&&x.s==='skip'?'<span class="warn">↷</span>':'○';
   const note=x&&x.s==='pre'?' <span class="m" style="font-size:13px">'+T('already set up','ya configurado')+'</span>':'';
   return '<div class="row" style="padding:6px 0'+(i===cur?';font-weight:700':'')+'"><span>'+icon+'  '+esc(s.t)+note+'</span><span><a href="'+self+'?wiz=1&step='+i+'" style="color:var(--acc);font-size:14px">'+(i===cur?'':T('open','abrir'))+'</a></span></div>'}).join('')+'</div>';
