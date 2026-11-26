@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache"><title>Installing</title>
+<style>body{font:18px -apple-system,system-ui,sans-serif;margin:0;padding:24px 16px;background:#f6f6f8;color:#111}a.b{display:block;background:#2f5bd3;color:#fff;text-align:center;padding:18px;border-radius:14px;text-decoration:none;font-weight:700;margin:16px 0}p{line-height:1.4}.m{opacity:.65;font-size:14px}</style></head><body>
+<h2 id="t">Opening Shortcuts…</h2><p id="p">If nothing happens in 2 seconds, tap the blue button.</p><a class="b" id="a" href="#">Open Shortcuts and add it</a>
+<p class="m">Then tap <b>Add Shortcut</b>. If iPhone says it is untrusted: Settings &gt; Shortcuts &gt; Allow Untrusted Shortcuts, then tap the blue button again.</p>
+<script>
+var q=new URLSearchParams(location.search),B='https://juppi97.github.io/helper/shortcuts/';
+var ok=/^[\w\/.-]+\.shortcut$/.test(q.get('f')||''),f=q.get('f'),n=(q.get('n')||'Family').slice(0,40);
+var u=ok?'shortcuts://import-shortcut?url='+encodeURIComponent(B+f)+'&name='+encodeURIComponent(n):'';
+if(!ok){document.getElementById('t').textContent='Unknown shortcut';document.getElementById('a').style.display='none'}
+else{document.getElementById('a').href=u;document.getElementById('t').textContent='Add "'+n+'"';setTimeout(function(){location.href=u},300)}
+</script></body></html>
