@@ -6,6 +6,6 @@
 <script>
 var q=new URLSearchParams(location.search),f=q.get('f')||'',n=(q.get('n')||'Family').slice(0,40);
 var a=document.getElementById('a');
-if(!/^[\w\/.-]+\.shortcut$/.test(f)){document.getElementById('t').textContent='Unknown shortcut';a.style.display='none'}
-else{a.href='../shortcuts/'+f;a.textContent='Install '+n;document.getElementById('t').textContent='Install '+n}
+if(!/^[\w\/. -]+\.shortcut$/.test(f)){document.getElementById('t').textContent='Unknown shortcut';a.style.display='none'}
+else{a.href='../shortcuts/'+encodeURI(f);a.setAttribute('download',n+'.shortcut');a.textContent='Install '+n;document.getElementById('t').textContent='Install '+n}
 </script></body></html>
