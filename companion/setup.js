@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='3.9';
+window.WIZ_V='4.0';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -17,8 +17,8 @@ const IMP=(f,n)=>'https://juppi97.github.io/helper/go/?f='+encodeURIComponent(f)
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family.shortcut':'Family.shortcut','Family'),SHORTCUTS_SETUP=IMP('Family Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=39&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=39&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=39&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=39&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=39&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=39&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=40&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=40&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=40&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=40&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=40&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=40&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
@@ -44,11 +44,11 @@ let cur=null,msg=null,diag=null;
 
 const FIXES={
  notinstalled:T('The Family shortcut is not installed. Tap Install Family, add it, then come back and tap the button again.','El atajo Family no está instalado. Toca Instalar Family, añádelo y vuelve a tocar el botón.'),
- old:T('Your Family shortcut is the old version. Delete it in the Shortcuts app (hold Family, Delete), tap Install Family, then come back and tap the button again.','Tu atajo Family es la versión antigua. Elimínalo en Atajos (mantén Family, Eliminar), toca Instalar Family y vuelve a tocar el botón.'),
+ old:T('Family ran but sent no answer back. If you just installed it, tap Install Family once more and run this check again.','Family se ejecutó pero no devolvió respuesta. Si acabas de instalarlo, toca Instalar Family otra vez y repite la comprobación.'),
  cancel:T('Shortcuts was closed before it finished. Tap the button again and stay on the Shortcuts screen until it returns by itself.','Atajos se cerró antes de terminar. Toca el botón otra vez y espera en Atajos hasta que vuelva solo.'),
  setupmissing:T('Family Setup is not installed. Tap Install Family Setup, add it, then tap the button again.','Family Setup no está instalado. Toca Instalar Family Setup, añádelo y vuelve a tocar el botón.'),
  setupbad:T('Family Setup did not report back. If iPhone showed an error, tap the button again (it skips what exists).','Family Setup no respondió. Si el iPhone mostró un error, toca el botón otra vez (salta lo que existe).'),
- testold:T('Nothing came back: the Family shortcut on this phone is the old version. In Shortcuts delete Family, tap Install Family, and if Safari only downloads the file, open Files > Downloads, tap the Family file and tap Add Shortcut. Then run the self-test again.','No volvió nada: el atajo Family de este móvil es la versión antigua. En Atajos elimina Family, toca Instalar Family y, si Safari solo descarga el archivo, abre Archivos > Descargas, toca el archivo Family y Añadir atajo. Luego repite la autoprueba.'),
+ testold:T('Family ran but sent no answer back. Tap Find out why. If it also shows nothing, tell Claude: this is a fault in the shortcut, not on your phone.','Family se ejecutó pero no devolvió respuesta. Toca Averiguar por qué. Si tampoco muestra nada, díselo a Claude: es un fallo del atajo, no de tu móvil.'),
  testempty:T('The shortcut wrote the line but the papers file is empty when read back. Tap Find out why.','El atajo escribió la línea pero el archivo de papeles está vacío al leerlo. Toca Averiguar por qué.'),
  testbad:T('Unexpected answer. Tap Find out why.','Respuesta inesperada. Toca Averiguar por qué.'),
  shareempty:T('Nothing was saved by the share yet. Did a banner from Family Share appear? If it said "failed", follow the banner. If nothing appeared, open Family Share once by hand in the Shortcuts app and allow every permission. Or use the paste box below.','El compartir aún no guardó nada. ¿Apareció un aviso de Family Share? Si dijo "failed", sigue el aviso. Si no apareció nada, abre Family Share a mano en Atajos y permite todo. O usa la caja de pegar.')
@@ -73,7 +73,7 @@ if(m){history.replaceState(null,'',self+'?wiz=1');const kind=m[1],res=(q.get('re
  else if(kind==='share'){if(bad)fail('share','cancel');else if(res.length>10)pass('share','ok',T('The paper arrived: '+res.length+' characters read.','El papel llegó: '+res.length+' caracteres leídos.'));else fail('share','shareempty')}
  else if(kind==='diag'){cur=idx('test');
   const d=res.match(/log(\d+)-latest(\d+)-test(\d+)-keep(\d+)/);
-  diag=!res?T('No answer: your Family shortcut is the old version. Delete it and tap Install Family.','Sin respuesta: tu atajo Family es la versión antigua. Elimínalo y toca Instalar Family.')
+  diag=!res?T('No answer from Family at all. This is a fault in the shortcut: tell Claude.','Family no respondió. Es un fallo del atajo: díselo a Claude.')
    :!d?T('Unexpected answer: '+res.slice(0,60),'Respuesta inesperada: '+res.slice(0,60))
    :(d[4]==='0'&&d[3]==='0')?T('The Family folders do not exist yet. Tap Create the folders below, then run the self-test again.','Las carpetas Family aún no existen. Toca Crear las carpetas y repite la autoprueba.')
    :d[1]==='0'?T('The papers file does not exist: Shortcuts could not write it. Tap Create the folders, allow Files access if asked, then run the self-test again.','El archivo de papeles no existe: Atajos no pudo escribirlo. Toca Crear las carpetas, permite el acceso a Archivos y repite.')
