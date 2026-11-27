@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='3.7';
+window.WIZ_V='3.8';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -17,8 +17,8 @@ const IMP=(f,n)=>'https://juppi97.github.io/helper/go/?f='+encodeURIComponent(f)
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family.shortcut':'Family.shortcut','Family'),SHORTCUTS_SETUP=IMP('Family Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=37&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=37&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=37&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=37&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=37&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=37&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=38&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=38&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=38&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=38&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=38&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=38&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
@@ -48,7 +48,7 @@ const FIXES={
  cancel:T('Shortcuts was closed before it finished. Tap the button again and stay on the Shortcuts screen until it returns by itself.','Atajos se cerró antes de terminar. Toca el botón otra vez y espera en Atajos hasta que vuelva solo.'),
  setupmissing:T('Family Setup is not installed. Tap Install Family Setup, add it, then tap the button again.','Family Setup no está instalado. Toca Instalar Family Setup, añádelo y vuelve a tocar el botón.'),
  setupbad:T('Family Setup did not report back. If iPhone showed an error, tap the button again (it skips what exists).','Family Setup no respondió. Si el iPhone mostró un error, toca el botón otra vez (salta lo que existe).'),
- testold:T('Nothing came back. Update the Family shortcut (delete it, tap Install Family) and try again.','No volvió nada. Actualiza el atajo Family (elimínalo y toca Instalar Family) y reintenta.'),
+ testold:T('Nothing came back: the Family shortcut on this phone is the old version. In Shortcuts delete Family, tap Install Family, and if Safari only downloads the file, open Files > Downloads, tap the Family file and tap Add Shortcut. Then run the self-test again.','No volvió nada: el atajo Family de este móvil es la versión antigua. En Atajos elimina Family, toca Instalar Family y, si Safari solo descarga el archivo, abre Archivos > Descargas, toca el archivo Family y Añadir atajo. Luego repite la autoprueba.'),
  testempty:T('The shortcut wrote the line but the papers file is empty when read back. Tap Find out why.','El atajo escribió la línea pero el archivo de papeles está vacío al leerlo. Toca Averiguar por qué.'),
  testbad:T('Unexpected answer. Tap Find out why.','Respuesta inesperada. Toca Averiguar por qué.'),
  shareempty:T('Nothing was saved by the share yet. Did a banner from Family Share appear? If it said "failed", follow the banner. If nothing appeared, open Family Share once by hand in the Shortcuts app and allow every permission. Or use the paste box below.','El compartir aún no guardó nada. ¿Apareció un aviso de Family Share? Si dijo "failed", sigue el aviso. Si no apareció nada, abre Family Share a mano en Atajos y permite todo. O usa la caja de pegar.')
