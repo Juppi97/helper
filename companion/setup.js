@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='4.3';
+window.WIZ_V='4.4';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -17,8 +17,8 @@ const IMP=(f,n)=>'https://juppi97.github.io/helper/go/?f='+encodeURIComponent(f)
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family Papers.shortcut':'Family Papers.shortcut','Family Papers'),SHORTCUTS_SETUP=IMP('Family Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=43&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=43&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=43&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=43&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=43&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=43&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=44&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=44&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=44&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=44&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=44&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=44&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const go2=m=>'shortcuts://run-shortcut?name='+encodeURIComponent('Family Papers')+'&input=text&text='+encodeURIComponent(m);
 const flagsNow=()=>S.get('flags',{});
@@ -105,8 +105,7 @@ function render(){
  if(diag&&s.id==='test')h+='<p class="m"><b>'+esc(diag)+'</b></p>';
  const failed=msg&&msg.id===s.id&&!msg.ok;
  if(s.flags){const f=flagsNow();h+=[['nocal',T('A calendar named Family already exists','Ya existe un calendario llamado Family')],['norem',T('A Reminders list named Family already exists','Ya existe una lista de Recordatorios llamada Family')],['nonotes',T('A Notes folder named Family already exists','Ya existe una carpeta de Notas llamada Family')]].map(x=>'<button class="s" data-flag="'+x[0]+'" style="text-align:left">'+(f[x[0]]?'☑':'☐')+' '+esc(x[1])+'</button>').join('')}
- const tp=S.get('topic','');if(s.push&&!tp){h+='<p class="no">'+T('Open this step from the family app (Settings, Phone alerts) so it knows your topic.','Abre este paso desde la app familiar (Ajustes, Avisos) para que conozca tu tema.')+'</p>'}
- if(s.push&&tp)h+='<a class="b" href="ntfy://ntfy.sh/'+encodeURIComponent(tp)+'">'+T('Subscribe in ntfy','Suscribirse en ntfy')+'</a><a class="b s" href="https://apps.apple.com/app/ntfy/id1625396347" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install ntfy (only if you do not have it)','Instalar ntfy (solo si no la tienes)')+'</a><a class="b s" href="https://ntfy.sh/'+encodeURIComponent(tp)+'/publish?title=Family&message=Setup+test+alert" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Send a test alert','Enviar aviso de prueba')+'</a><button class="s" id="pushdone">'+T('The alert arrived','El aviso llegó')+'</button>'
+ const tp=S.get('topic','')||'hh-EYyaLSItrkoHpuExHn1dpSXU'; if(s.push&&tp)h+='<a class="b" href="ntfy://ntfy.sh/'+encodeURIComponent(tp)+'">'+T('Subscribe in ntfy','Suscribirse en ntfy')+'</a><a class="b s" href="https://apps.apple.com/app/ntfy/id1625396347" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install ntfy (only if you do not have it)','Instalar ntfy (solo si no la tienes)')+'</a><a class="b s" href="https://ntfy.sh/'+encodeURIComponent(tp)+'/publish?title=Family&message=Setup+test+alert" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Send a test alert','Enviar aviso de prueba')+'</a><button class="s" id="pushdone">'+T('The alert arrived','El aviso llegó')+'</button>'
  if(!s.push)h+='<a class="b" id="go" href="#">'+esc(failed&&!s.share?T('Try again','Reintentar'):s.btn)+'</a>';
  if(s.share){h+='<button class="s" id="sharebtn">'+T('Share a sample bill','Compartir factura de ejemplo')+'</button><textarea id="sample" readonly style="display:none;margin-top:8px"></textarea><p class="m" style="margin-top:12px"><b>'+T('Fallback only, if the share sheet does not work: paste text of a bill or letter:','¿Sin menú compartir? Pega el texto de una factura o carta:')+'</b></p><textarea id="paste"></textarea><button class="s" id="pasteok">'+T('Use pasted text','Usar el texto pegado')+'</button><p class="m" id="pasteout"></p>'}
  if(failed||diag){if(s.id==='test'||s.id==='setup'){if(s.id==='test')h+='<a class="b s" id="diagbtn" href="#" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Find out why','Averiguar por qué')+'</a>';h+='<a class="b s" href="'+self+'?run=setup&flags=nocal%2Cnorem%2Cnonotes" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Create the folders','Crear las carpetas')+'</a>'}}
@@ -119,6 +118,7 @@ function render(){
  h+='<div style="display:flex;gap:8px;margin-top:10px">'+(i>0?'<button class="s" id="back">'+T('Back','Atrás')+'</button>':'')+'<button class="s" id="skip">'+T('Skip','Saltar')+'</button></div>';
  h+='<a class="m" href="'+self+'?daily=1" style="display:block;margin-top:10px;text-align:center">'+T('Skip setup, go to daily use','Saltar la configuración, ir al uso diario')+'</a>';
  box.className='c';box.innerHTML=h;
+ const pt=document.getElementById('pushtest');if(pt)pt.onclick=()=>{const o=document.getElementById('pushout');o.textContent=T('Sending…','Enviando…');fetch('https://ntfy.sh/'+encodeURIComponent(S.get('topic','')||'hh-EYyaLSItrkoHpuExHn1dpSXU')+'/publish?title=Family&message=Setup+test+alert',{mode:'no-cors'}).then(()=>{o.textContent=T('Sent. Look at your phone: an alert from ntfy should appear within seconds.','Enviado. Mira tu móvil: debe aparecer un aviso de ntfy en segundos.')}).catch(()=>{o.textContent=T('Could not send. Check your connection and try again.','No se pudo enviar. Revisa la conexión y reintenta.')})};
  const pd=document.getElementById('pushdone');if(pd)pd.onclick=()=>{st.push={s:'ok',at:Date.now()};save();location.href=self+'?wiz=1&step='+STEPS.length};
  const go=document.getElementById('go');
  if(go)go.onclick=e=>{e.preventDefault();
