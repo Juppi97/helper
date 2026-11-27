@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='4.4';
+window.WIZ_V='5.0';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -17,8 +17,8 @@ const IMP=(f,n)=>'https://juppi97.github.io/helper/go/?f='+encodeURIComponent(f)
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family Papers.shortcut':'Family Papers.shortcut','Family Papers'),SHORTCUTS_SETUP=IMP('Family Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=44&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=44&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=44&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=44&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=44&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=44&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=50&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=50&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=50&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=50&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=50&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=50&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const go2=m=>'shortcuts://run-shortcut?name='+encodeURIComponent('Family Papers')+'&input=text&text='+encodeURIComponent(m);
 const flagsNow=()=>S.get('flags',{});
@@ -30,8 +30,12 @@ const done=id=>!!st[id]&&(st[id].s==='ok'||st[id].s==='pre');
 const STEPS=[
  {id:'sc',t:T('Your phone','Tu móvil'),title:T('Check what is already on this phone','Comprueba qué hay ya en este móvil'),
   say:T('Tap the button. It looks for the Family Papers shortcut and your Family files. Whatever exists is skipped.','Toca el botón. Busca el atajo Family Papers y tus archivos Family. Lo que ya existe se salta.'),btn:T('Check my phone','Comprobar mi móvil')},
- {id:'setup',t:T('Calendar, list, folders','Calendario, lista, carpetas'),title:T('Create the Family calendar, list and folders','Crear calendario, lista y carpetas Family'),
-  say:T('Tick what already exists, then tap the button. Only what is missing gets created.','Marca lo que ya existe y toca el botón. Solo se crea lo que falta.'),btn:T('Run Family Setup','Ejecutar Family Setup'),flags:true},
+ {id:'setup',t:T('Calendar and folders','Calendario y carpetas'),title:T('Create the Family calendar and Files folders','Crear el calendario Family y las carpetas de Archivos'),
+  say:T('Tick the calendar if it already exists, then tap the button. Only what is missing gets created.','Marca el calendario si ya existe y toca el botón. Solo se crea lo que falta.'),btn:T('Run Family Setup','Ejecutar Family Setup'),flags:true},
+ {id:'notes',t:T('Notes folder','Carpeta de Notas'),title:T('Create the Notes folder Family','Crear la carpeta de Notas Family'),
+  say:T('Apple does not let a shortcut create a Notes folder, so this is three taps by hand: open Notes, tap the folder icon bottom left, tap New Folder, name it Family. Then tap the button below.','Apple no deja que un atajo cree una carpeta de Notas, así que son tres toques a mano: abre Notas, toca el icono de carpeta abajo a la izquierda, toca Nueva carpeta y llámala Family. Luego toca el botón.'),btn:T('I created the Notes folder','Ya creé la carpeta de Notas'),manual:{open:'mobilenotes://',openT:T('Open Notes','Abrir Notas')}},
+ {id:'rem',t:T('Reminders list','Lista de Recordatorios'),title:T('Create the Reminders list Family','Crear la lista de Recordatorios Family'),
+  say:T('Apple does not let a shortcut create a Reminders list, so this is three taps by hand: open Reminders, tap Add List bottom right, name it Family. Then tap the button below.','Apple no deja que un atajo cree una lista de Recordatorios, así que son tres toques a mano: abre Recordatorios, toca Añadir lista abajo a la derecha y llámala Family. Luego toca el botón.'),btn:T('I created the Reminders list','Ya creé la lista de Recordatorios'),manual:{open:'x-apple-reminderkit://',openT:T('Open Reminders','Abrir Recordatorios')}},
  {id:'test',t:T('Self-test','Autoprueba'),title:T('Test saving, reading and the due list','Probar guardar, leer y la lista de pendientes'),
   say:T('Tap the button. It saves a made-up bill, reads it back and tests the due list. Takes about ten seconds.','Toca el botón. Guarda una factura inventada, la lee y prueba la lista de pendientes. Tarda unos diez segundos.'),btn:T('Run the self-test','Hacer la autoprueba')},
  {id:'share',t:T('Share a paper','Compartir un papel'),title:T('Share a paper to the phone (optional)','Compartir un papel al móvil (opcional)'),
@@ -63,12 +67,12 @@ if(m){history.replaceState(null,'',self+'?wiz=1');const kind=m[1],res=(q.get('re
  const pass=(id,state,text)=>{st[id]={s:state||'ok',at:Date.now()};save();msg={id,ok:true,text:text||''};let n=idx(id)+1;while(n<STEPS.length&&st[STEPS[n].id]&&st[STEPS[n].id].s==='pre')n++;cur=n};
  if(kind==='sc'){const d=res.match(/FAM-v2-DIAG-log(\d+)-latest(\d+)-test(\d+)-keep(\d+)-cal(\d+)-rem(\d+)-notes(\d+)-old(\d+)/);
   if(q.get('error'))fail('sc','notinstalled');else if(q.get('cancel'))fail('sc','cancel');else if(!d)fail('sc','old');
-  else{const n=d.slice(1).map(Number);const calOk=n[4]>0||n[7]>0,allThree=calOk&&n[5]>0&&n[6]>0;
+  else{const n=d.slice(1).map(Number);const calOk=n[4]>0||n[7]>0,allThree=calOk;
    S.set('flags',Object.assign(flagsNow(),n[4]>0||n[7]>0?{nocal:true}:{},n[5]>0?{norem:true}:{},n[6]>0?{nonotes:true}:{}));
    if(allThree){st.setup={s:'pre',at:Date.now()}}
-   pass('sc','pre',T('Found the Family Papers shortcut'+(allThree?', your calendar, list and folders. They are already set up.':'.'),'Encontré el atajo Family Papers'+(allThree?', tu calendario, lista y carpetas. Ya están configurados.':'.')));
+   pass('sc','pre',T('Found the Family Papers shortcut'+(allThree?', your calendar and folders. They are already set up.':'.'),'Encontré el atajo Family Papers'+(allThree?', tu calendario y carpetas. Ya están configurados.':'.')));
    let n2=idx('sc')+1;while(n2<STEPS.length&&st[STEPS[n2].id]&&st[STEPS[n2].id].s==='pre')n2++;cur=n2}}
- else if(kind==='setup'){if(bad)fail('setup',q.get('error')?'setupmissing':'cancel');else if(!/^FAM-SETUP(-[A-Z]\d+){2,}$/.test(res))fail('setup','setupbad');else pass('setup','ok',T('Calendar, list and folders are ready.','Calendario, lista y carpetas listos.'))}
+ else if(kind==='setup'){if(bad)fail('setup',q.get('error')?'setupmissing':'cancel');else if(!/^FAM-SETUP(-[A-Z]\d+){2,}$/.test(res))fail('setup','setupbad');else pass('setup','ok',T('Calendar and folders are ready.','Calendario y carpetas listos.'))}
  else if(kind==='test'){if(bad)fail('test',q.get('error')?'notinstalled':'cancel');else if(/^FAM-v2-SELFTEST-OK/.test(res)){pass('test','ok',T('Saving, reading and the due list all work.','Guardar, leer y la lista de pendientes funcionan.'))}
   else if(/SELFTEST-EMPTY/.test(res))fail('test','testempty');else if(!res)fail('test','testold');else fail('test','testbad')}
  else if(kind==='share'){if(bad)fail('share','cancel');else if(/^FAM-v2-SHARE-(\d+)$/.test(res)&&+res.match(/(\d+)$/)[1]>10)pass('share','ok',T('The paper arrived: '+res.match(/(\d+)$/)[1]+' characters read.','El papel llegó: '+res.match(/(\d+)$/)[1]+' caracteres leídos.'));else fail('share','shareempty')}
@@ -83,7 +87,7 @@ if(m){history.replaceState(null,'',self+'?wiz=1');const kind=m[1],res=(q.get('re
 if(cur==null){const qs=q.get('step');cur=qs!=null?Math.max(0,Math.min(STEPS.length-1,+qs||0)):firstOpen()}
 
 /* ---------- run page for Family Setup ---------- */
-if(q.get('run')==='setup'){const ok=['nocal','norem','nonotes'];const fl=(q.get('flags')||'').split(',').filter(x=>ok.includes(x));S.set('flags',Object.fromEntries(fl.map(k=>[k,true])));
+if(q.get('run')==='setup'){const ok=['nocal','norem','nonotes'];const fl=(q.get('flags')||'').split(',').filter(x=>ok.includes(x));if(fl.indexOf('norem')<0)fl.push('norem');if(fl.indexOf('nonotes')<0)fl.push('nonotes');S.set('flags',Object.fromEntries(fl.map(k=>[k,true])));
  location.replace(cbUrl('Family Setup',fl.concat(['cb']).join(' '),'p-setup'));return}
 
 if(q.get('run')==='test'){location.replace(go2('go:selftest'));return}
@@ -104,8 +108,9 @@ function render(){
  if(msg&&msg.id===s.id)h+=msg.ok?'<p class="ok"><b>✓ '+esc(msg.text||'')+'</b></p>':'<p class="no"><b>✗</b> '+esc(msg.text)+'</p>'+(msg.dbg?'<p class="m" style="font-size:11px;word-break:break-all">'+T('What came back','Lo que volvió')+': '+esc(decodeURIComponent(msg.dbg).replace(/\s+/g,' '))+'</p>':'');
  if(diag&&s.id==='test')h+='<p class="m"><b>'+esc(diag)+'</b></p>';
  const failed=msg&&msg.id===s.id&&!msg.ok;
- if(s.flags){const f=flagsNow();h+=[['nocal',T('A calendar named Family already exists','Ya existe un calendario llamado Family')],['norem',T('A Reminders list named Family already exists','Ya existe una lista de Recordatorios llamada Family')],['nonotes',T('A Notes folder named Family already exists','Ya existe una carpeta de Notas llamada Family')]].map(x=>'<button class="s" data-flag="'+x[0]+'" style="text-align:left">'+(f[x[0]]?'☑':'☐')+' '+esc(x[1])+'</button>').join('')}
+ if(s.flags){const f=flagsNow();h+=[['nocal',T('A calendar named Family already exists','Ya existe un calendario llamado Family')],].map(x=>'<button class="s" data-flag="'+x[0]+'" style="text-align:left">'+(f[x[0]]?'☑':'☐')+' '+esc(x[1])+'</button>').join('')}
  const tp=S.get('topic','')||'hh-EYyaLSItrkoHpuExHn1dpSXU'; if(s.push&&tp)h+='<a class="b" href="ntfy://ntfy.sh/'+encodeURIComponent(tp)+'">'+T('Subscribe in ntfy','Suscribirse en ntfy')+'</a><a class="b s" href="https://apps.apple.com/app/ntfy/id1625396347" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Install ntfy (only if you do not have it)','Instalar ntfy (solo si no la tienes)')+'</a><button class="s" id="pushtest">'+T('Send a test alert','Enviar aviso de prueba')+'</button><p class="m" id="pushout"></p><button class="s" id="pushdone">'+T('The alert arrived','El aviso llegó')+'</button>'
+ if(s.manual)h+='<a class="b s" href="'+s.manual.open+'" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+esc(s.manual.openT)+'</a>';
  if(!s.push)h+='<a class="b" id="go" href="#">'+esc(failed&&!s.share?T('Try again','Reintentar'):s.btn)+'</a>';
  if(s.share){h+='<button class="s" id="sharebtn">'+T('Share a sample bill','Compartir factura de ejemplo')+'</button><textarea id="sample" readonly style="display:none;margin-top:8px"></textarea><p class="m" style="margin-top:12px"><b>'+T('Fallback only, if the share sheet does not work: paste text of a bill or letter:','¿Sin menú compartir? Pega el texto de una factura o carta:')+'</b></p><textarea id="paste"></textarea><button class="s" id="pasteok">'+T('Use pasted text','Usar el texto pegado')+'</button><p class="m" id="pasteout"></p>'}
  if(failed||diag){if(s.id==='test'||s.id==='setup'){if(s.id==='test')h+='<a class="b s" id="diagbtn" href="#" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Find out why','Averiguar por qué')+'</a>';h+='<a class="b s" href="'+self+'?run=setup&flags=nocal%2Cnorem%2Cnonotes" style="background:transparent;color:var(--acc);border:1px solid var(--line)">'+T('Create the folders','Crear las carpetas')+'</a>'}}
@@ -122,8 +127,9 @@ function render(){
  const pd=document.getElementById('pushdone');if(pd)pd.onclick=()=>{st.push={s:'ok',at:Date.now()};save();location.href=self+'?wiz=1&step='+STEPS.length};
  const go=document.getElementById('go');
  if(go)go.onclick=e=>{e.preventDefault();
+  if(s.manual){st[s.id]={s:'ok',at:Date.now()};save();location.href=self+'?wiz=1&step='+(i+1);return}
   if(s.id==='sc')location.href=go2('go:diag-sc');
-  else if(s.id==='setup'){const w=flagWords();location.href=cbUrl('Family Setup',(w?w+' ':'')+'cb','p-setup')}
+  else if(s.id==='setup'){const w=flagWords();location.href=cbUrl('Family Setup',(w?w+' ':'')+'norem nonotes cb','p-setup')}
   else if(s.id==='test'){location.href=go2('go:selftest')}
   else if(s.id==='share')location.href=go2('go:share')};
  /* Family shortcut modes take text starting with cb: ; cbUrl adds nothing, so wrap here */
