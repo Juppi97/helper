@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='4.1';
+window.WIZ_V='4.2';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -17,8 +17,8 @@ const IMP=(f,n)=>'https://juppi97.github.io/helper/go/?f='+encodeURIComponent(f)
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family Papers.shortcut':'Family Papers.shortcut','Family Papers'),SHORTCUTS_SETUP=IMP('Family Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=41&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=41&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=41&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=41&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=41&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=41&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=42&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=42&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=42&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=42&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=42&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=42&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
@@ -114,6 +114,7 @@ function render(){
  if(s.id==='share')h+='<a class="m" href="'+IMP('Family Share.shortcut','Family Share')+'" style="display:block;margin-top:10px">'+T('Install Family Share (only if you do not have it)','Instalar Family Share (solo si no lo tienes)')+'</a>';
  if(s.id==='sc'&&!failed)h+='<a class="m" href="'+SHORTCUTS+'" style="display:block;margin-top:10px">'+T('Not installed yet? Install Family Papers (only if you do not have it)','¿Aún no está instalado? Instalar Family Papers (solo si no lo tienes)')+'</a>';
  if(s.id==='setup'&&!failed)h+='<a class="m" href="'+SHORTCUTS_SETUP+'" style="display:block;margin-top:10px">'+T('Install Family Setup (only if you do not have it)','Instalar Family Setup (solo si no lo tienes)')+'</a>';
+ if(s.id==='sc')h+='<a class="m" href="'+self+'?run=test" style="display:block;margin-top:10px">'+T('Go straight to the self-test','Ir directamente a la autoprueba')+'</a>';
  h+='<div style="display:flex;gap:8px;margin-top:10px">'+(i>0?'<button class="s" id="back">'+T('Back','Atrás')+'</button>':'')+'<button class="s" id="skip">'+T('Skip','Saltar')+'</button></div>';
  h+='<a class="m" href="'+self+'?daily=1" style="display:block;margin-top:10px;text-align:center">'+T('Skip setup, go to daily use','Saltar la configuración, ir al uso diario')+'</a>';
  box.className='c';box.innerHTML=h;
