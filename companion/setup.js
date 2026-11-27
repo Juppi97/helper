@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='4.2';
+window.WIZ_V='4.3';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -17,9 +17,10 @@ const IMP=(f,n)=>'https://juppi97.github.io/helper/go/?f='+encodeURIComponent(f)
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family Papers.shortcut':'Family Papers.shortcut','Family Papers'),SHORTCUTS_SETUP=IMP('Family Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=42&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=42&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=42&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=42&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=42&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=42&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=43&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=43&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=43&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=43&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family%20Papers&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=43&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=43&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
+const go2=m=>'shortcuts://run-shortcut?name='+encodeURIComponent('Family Papers')+'&input=text&text='+encodeURIComponent(m);
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
 
@@ -68,9 +69,9 @@ if(m){history.replaceState(null,'',self+'?wiz=1');const kind=m[1],res=(q.get('re
    pass('sc','pre',T('Found the Family Papers shortcut'+(allThree?', your calendar, list and folders. They are already set up.':'.'),'Encontré el atajo Family Papers'+(allThree?', tu calendario, lista y carpetas. Ya están configurados.':'.')));
    let n2=idx('sc')+1;while(n2<STEPS.length&&st[STEPS[n2].id]&&st[STEPS[n2].id].s==='pre')n2++;cur=n2}}
  else if(kind==='setup'){if(bad)fail('setup',q.get('error')?'setupmissing':'cancel');else if(!/^FAM-SETUP(-[A-Z]\d+){2,}$/.test(res))fail('setup','setupbad');else pass('setup','ok',T('Calendar, list and folders are ready.','Calendario, lista y carpetas listos.'))}
- else if(kind==='test'){if(bad)fail('test',q.get('error')?'notinstalled':'cancel');else if(res.indexOf('"id":"selftest"')>=0){if(window.HHL)HHL.merge(res);pass('test','ok',T('Saving, reading and the due list all work.','Guardar, leer y la lista de pendientes funcionan.'))}
-  else if(res.indexOf('FAM-v2-PAPERS-EMPTY')>=0)fail('test','testempty');else if(!res)fail('test','testold');else fail('test','testbad')}
- else if(kind==='share'){if(bad)fail('share','cancel');else if(res.length>10)pass('share','ok',T('The paper arrived: '+res.length+' characters read.','El papel llegó: '+res.length+' caracteres leídos.'));else fail('share','shareempty')}
+ else if(kind==='test'){if(bad)fail('test',q.get('error')?'notinstalled':'cancel');else if(/^FAM-v2-SELFTEST-OK/.test(res)){pass('test','ok',T('Saving, reading and the due list all work.','Guardar, leer y la lista de pendientes funcionan.'))}
+  else if(/SELFTEST-EMPTY/.test(res))fail('test','testempty');else if(!res)fail('test','testold');else fail('test','testbad')}
+ else if(kind==='share'){if(bad)fail('share','cancel');else if(/^FAM-v2-SHARE-(\d+)$/.test(res)&&+res.match(/(\d+)$/)[1]>10)pass('share','ok',T('The paper arrived: '+res.match(/(\d+)$/)[1]+' characters read.','El papel llegó: '+res.match(/(\d+)$/)[1]+' caracteres leídos.'));else fail('share','shareempty')}
  else if(kind==='diag'){cur=idx('test');
   const d=res.match(/log(\d+)-latest(\d+)-test(\d+)-keep(\d+)/);
   diag=!res?T('No answer from Family at all. This is a fault in the shortcut: tell Claude.','Family no respondió. Es un fallo del atajo: díselo a Claude.')
@@ -85,8 +86,8 @@ if(cur==null){const qs=q.get('step');cur=qs!=null?Math.max(0,Math.min(STEPS.leng
 if(q.get('run')==='setup'){const ok=['nocal','norem','nonotes'];const fl=(q.get('flags')||'').split(',').filter(x=>ok.includes(x));S.set('flags',Object.fromEntries(fl.map(k=>[k,true])));
  location.replace(cbUrl('Family Setup',fl.concat(['cb']).join(' '),'p-setup'));return}
 
-if(q.get('run')==='test'){const add=JSON.stringify({t:'add',id:'selftest',d:today,s:'Setup test',k:'bill',a:0,due:null}),dn=JSON.stringify({t:'done',id:'selftest',d:today});location.replace(chain(['file:'+testBill(),'ensure:','log:'+add,'log:'+dn,'papers:read'],'p-test'));return}
-if(q.get('run')==='share'){location.replace(cbUrl('Family Papers','cb:scan:inbox','p-share'));return}
+if(q.get('run')==='test'){location.replace(go2('go:selftest'));return}
+if(q.get('run')==='share'){location.replace(go2('go:share'));return}
 render();
 
 function render(){
@@ -121,13 +122,13 @@ function render(){
  const pd=document.getElementById('pushdone');if(pd)pd.onclick=()=>{st.push={s:'ok',at:Date.now()};save();location.href=self+'?wiz=1&step='+STEPS.length};
  const go=document.getElementById('go');
  if(go)go.onclick=e=>{e.preventDefault();
-  if(s.id==='sc')location.href=cbUrl('Family Papers','cb:diag:','p-sc');
+  if(s.id==='sc')location.href=go2('go:diag-sc');
   else if(s.id==='setup'){const w=flagWords();location.href=cbUrl('Family Setup',(w?w+' ':'')+'cb','p-setup')}
-  else if(s.id==='test'){const add=JSON.stringify({t:'add',id:'selftest',d:today,s:'Setup test',k:'bill',a:0,due:null}),dn=JSON.stringify({t:'done',id:'selftest',d:today});location.href=chain(['file:'+testBill(),'ensure:','log:'+add,'log:'+dn,'papers:read'],'p-test')}
-  else if(s.id==='share')location.href=cbUrl('Family Papers','cb:scan:inbox','p-share')};
+  else if(s.id==='test'){location.href=go2('go:selftest')}
+  else if(s.id==='share')location.href=go2('go:share')};
  /* Family shortcut modes take text starting with cb: ; cbUrl adds nothing, so wrap here */
  box.querySelectorAll('[data-flag]').forEach(b=>b.onclick=()=>{const f=flagsNow();f[b.dataset.flag]=!f[b.dataset.flag];S.set('flags',f);render()});
- const d=document.getElementById('diagbtn');if(d)d.onclick=e=>{e.preventDefault();location.href=cbUrl('Family Papers','cb:diag:','p-diag')};
+ const d=document.getElementById('diagbtn');if(d)d.onclick=e=>{e.preventDefault();location.href=go2('go:diag-diag')};
  const sh=document.getElementById('sharebtn');if(sh)sh.onclick=async()=>{const t='TESTDOKUMENT Fjellkraft Strøm AS (fiktiv)\nFaktura\nTotalt å betale: kr 500,00';try{if(navigator.share)await navigator.share({title:'Family test',text:t});else throw 0}catch(e){if(e&&e.name==='AbortError')return;const ta=document.getElementById('sample');ta.style.display='block';ta.value=t;ta.select()}};
  const po=document.getElementById('pasteok');if(po)po.onclick=()=>{const v=document.getElementById('paste').value,out=document.getElementById('pasteout');let n=0;try{n=window.HHS?HHS.parse(v,{today,lang:lg}).docs.length:0}catch(e){}
   if(v.trim().length>10&&n>0){document.getElementById('paste').value='';st.share={s:'ok',paste:true,at:Date.now()};save();location.href=self+'?wiz=1&step='+STEPS.length}else{out.className='m no';out.textContent=T('I could not read that text. Paste the whole text of a bill or letter.','No pude leer ese texto. Pega el texto completo de una factura o carta.')}};
