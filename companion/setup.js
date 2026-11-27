@@ -2,7 +2,7 @@
    Every shortcut answer comes back by URL callback (x-success) and is judged here. Only pass/skip per step is stored on this phone.
    Steps: 1 shortcut + files detected, 2 Family Setup (calendar, list, notes, folders), 3 self-test (save, read, due list), 4 share a paper (optional). */
 (function(){
-window.WIZ_V='3.8';
+window.WIZ_V='3.9';
 const box=document.getElementById('wiz');if(!box)return;
 const daily=document.getElementById('daily');
 const q=new URLSearchParams(location.search),self=location.origin+location.pathname;
@@ -17,8 +17,8 @@ const IMP=(f,n)=>'https://juppi97.github.io/helper/go/?f='+encodeURIComponent(f)
 const APP='https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX';
 const SHORTCUTS=IMP(lg==='es'?'es/Family.shortcut':'Family.shortcut','Family'),SHORTCUTS_SETUP=IMP('Family Setup.shortcut','Family Setup');
 const cbUrl=(name,text,tag)=>'shortcuts://x-callback-url/run-shortcut?name='+encodeURIComponent(name)+'&input=text&text='+encodeURIComponent(text)
- +'&x-success='+encodeURIComponent(self+'?v=38&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=38&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=38&r='+tag+'&error=1');
-function chain(modes,tag){let next=self+'?v=38&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=38&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=38&r='+tag+'&error=1')}return next}
+ +'&x-success='+encodeURIComponent(self+'?v=39&r='+tag)+'&x-cancel='+encodeURIComponent(self+'?v=39&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=39&r='+tag+'&error=1');
+function chain(modes,tag){let next=self+'?v=39&r='+tag;for(let i=modes.length-1;i>=0;i--){next='shortcuts://x-callback-url/run-shortcut?name=Family&input=text&text='+encodeURIComponent('cb:'+modes[i])+'&x-success='+encodeURIComponent(next)+'&x-cancel='+encodeURIComponent(self+'?v=39&r='+tag+'&cancel=1')+'&x-error='+encodeURIComponent(self+'?v=39&r='+tag+'&error=1')}return next}
 if(q.get('t')&&/^[\w-]{8,64}$/.test(q.get('t')))S.set('topic',q.get('t'));
 const flagsNow=()=>S.get('flags',{});
 const flagWords=()=>Object.keys(flagsNow()).filter(k=>flagsNow()[k]).join(' ');
@@ -55,10 +55,10 @@ const FIXES={
 };
 
 /* ---------- return from a shortcut ---------- */
-const ret=q.get('r')||'';
+const ret=q.get('r')||'';const RAW=location.search.slice(0,400);
 const m=/^p-(\w+)$/.exec(ret);
 if(m){history.replaceState(null,'',self+'?wiz=1');const kind=m[1],res=(q.get('result')||'').trim(),bad=q.get('error')||q.get('cancel');
- const fail=(id,key)=>{msg={id,ok:false,text:FIXES[key]};cur=idx(id)};
+ const fail=(id,key)=>{msg={id,ok:false,text:FIXES[key],dbg:RAW};cur=idx(id)};
  const pass=(id,state,text)=>{st[id]={s:state||'ok',at:Date.now()};save();msg={id,ok:true,text:text||''};let n=idx(id)+1;while(n<STEPS.length&&st[STEPS[n].id]&&st[STEPS[n].id].s==='pre')n++;cur=n};
  if(kind==='sc'){const d=res.match(/FAM-v2-DIAG-log(\d+)-latest(\d+)-test(\d+)-keep(\d+)-cal(\d+)-rem(\d+)-notes(\d+)-old(\d+)/);
   if(q.get('error'))fail('sc','notinstalled');else if(q.get('cancel'))fail('sc','cancel');else if(!d)fail('sc','old');
@@ -100,7 +100,7 @@ function render(){
  if(finished){h+='<p class="ok big">✓ '+T('The phone is ready.','El móvil está listo.')+'</p><p class="m">'+T('Next: open the app, Settings, tap Check app connections.','Siguiente: abre la app, Ajustes, y toca Comprobar conexiones de la app.')+'</p><a class="b" href="https://claude.ai/artifact/N99WuDAMn956tCCD8XPFaX">'+T('Open the family app','Abrir la app familiar')+'</a><button class="s" id="redo">'+T('Run the checks again','Repetir las comprobaciones')+'</button>';box.className='c';box.innerHTML=h;const r=document.getElementById('redo');if(r)r.onclick=()=>{st={};save();location.href=self+'?wiz=1'};return}
  const s=STEPS[Math.min(cur,STEPS.length-1)],i=idx(s.id);
  h+='<div class="m">'+T('Step','Paso')+' '+(i+1)+' '+T('of','de')+' '+STEPS.length+'</div><h2>'+esc(s.title)+'</h2><p>'+esc(s.say)+'</p>';
- if(msg&&msg.id===s.id)h+=msg.ok?'<p class="ok"><b>✓ '+esc(msg.text||'')+'</b></p>':'<p class="no"><b>✗</b> '+esc(msg.text)+'</p>';
+ if(msg&&msg.id===s.id)h+=msg.ok?'<p class="ok"><b>✓ '+esc(msg.text||'')+'</b></p>':'<p class="no"><b>✗</b> '+esc(msg.text)+'</p>'+(msg.dbg?'<p class="m" style="font-size:11px;word-break:break-all">'+T('What came back','Lo que volvió')+': '+esc(decodeURIComponent(msg.dbg).replace(/\s+/g,' '))+'</p>':'');
  if(diag&&s.id==='test')h+='<p class="m"><b>'+esc(diag)+'</b></p>';
  const failed=msg&&msg.id===s.id&&!msg.ok;
  if(s.flags){const f=flagsNow();h+=[['nocal',T('A calendar named Family already exists','Ya existe un calendario llamado Family')],['norem',T('A Reminders list named Family already exists','Ya existe una lista de Recordatorios llamada Family')],['nonotes',T('A Notes folder named Family already exists','Ya existe una carpeta de Notas llamada Family')]].map(x=>'<button class="s" data-flag="'+x[0]+'" style="text-align:left">'+(f[x[0]]?'☑':'☐')+' '+esc(x[1])+'</button>').join('')}
